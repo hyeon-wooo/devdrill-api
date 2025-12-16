@@ -10,5 +10,6 @@ import { QuestionHistoryService } from './app/question-history.service';
   imports: [TypeOrmModule.forFeature([QuestionEntity, QuestionHistoryEntity])],
   controllers: [QuestionController],
   providers: [QuestionService, QuestionHistoryService],
+  exports: [QuestionService],
 })
 export class QuestionModule {}

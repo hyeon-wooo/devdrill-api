@@ -117,4 +117,24 @@ export class QuestionService extends CRUDService<QuestionEntity> {
 
     return true;
   }
+
+  async getSolvedCount(userId: number, categoryId: number) {
+    const ids = await this.findMany({
+      select: ['id'],
+      where: {
+        categoryId,
+      },
+    });
+
+    const solvedHistories = await this.questionHistoryService.findMany({
+      select: ['id'],
+      where: {
+        userId,
+        questionId: In(ids.map((id) => id.id)),
+        isCorrect: true,
+      },
+    });
+
+    return solvedHistories.length;
+  }
 }
