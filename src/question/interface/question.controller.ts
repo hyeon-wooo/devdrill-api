@@ -14,10 +14,14 @@ import { RandomQuestionQueryDto, SubmitQuestionBodyDto } from './question.dto';
 import { JwtAuthGuard } from 'src/auth/jwt.guard';
 import { Request } from 'express';
 import { IJwtPayload } from 'src/auth/auth.interface';
+import { QuestionHistoryService } from '../app/question-history.service';
 
 @Controller('question')
 export class QuestionController {
-  constructor(private readonly service: QuestionService) {}
+  constructor(
+    private readonly service: QuestionService,
+    private readonly questionHistoryService: QuestionHistoryService,
+  ) {}
 
   @Post('/bulk')
   async bulk() {
@@ -53,5 +57,17 @@ export class QuestionController {
     const { answer, explanation, isCorrect } =
       await this.service.submitQuestion(userId, id, myAnswer);
     return sendSuccessRes({ answer, explanation, isCorrect });
+  }
+
+  @Post('/history/reset')
+  @UseGuards(JwtAuthGuard)
+  async resetHistory(
+    @Query('categoryId') categoryIdStr: string,
+    @Req() { user }: Request,
+  ) {
+    const categoryId = Number(categoryIdStr);
+    const userId = user?.id ?? 0;
+    await this.service.resetHistory(userId, categoryId);
+    return sendSuccessRes(null);
   }
 }

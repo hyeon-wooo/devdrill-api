@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CRUDService } from 'src/common/crud.service';
-import { IsNull, Repository } from 'typeorm';
+import { In, IsNull, Repository } from 'typeorm';
 import { QuestionEntity } from '../infra/question.entity';
 import * as fs from 'fs';
 import { QuestionHistoryService } from './question-history.service';
@@ -100,5 +100,21 @@ export class QuestionService extends CRUDService<QuestionEntity> {
       answer: question.answer,
       explanation: question.explanation,
     };
+  }
+
+  async resetHistory(userId: number, categoryId: number) {
+    const ids = await this.findMany({
+      select: ['id'],
+      where: {
+        categoryId,
+      },
+    });
+
+    await this.questionHistoryService.deleteWithWhere({
+      userId,
+      questionId: In(ids.map((id) => id.id)),
+    });
+
+    return true;
   }
 }

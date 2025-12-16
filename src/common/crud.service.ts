@@ -84,6 +84,14 @@ export abstract class CRUDService<TEntity extends ObjectLiteral> {
     return true;
   }
 
+  async deleteWithWhere(
+    condition: FindOptionsWhere<TEntity>,
+  ): Promise<boolean> {
+    await this.repo.softDelete(condition);
+
+    return true;
+  }
+
   async deleteTestingData(ids: string[]): Promise<boolean> {
     await this.repo.delete(ids);
     return true;
