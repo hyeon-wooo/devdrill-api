@@ -26,8 +26,11 @@ export class QuestionEntity extends DefaultEntity {
   @Column('text', { comment: '보기 E', nullable: true })
   choiceE: string | null;
 
-  @Column('varchar', { comment: '정답', length: 1 })
-  answer: 'A' | 'B' | 'C' | 'D' | 'E';
+  @Column('text', { comment: '보기 F', nullable: true })
+  choiceF: string | null;
+
+  @Column('varchar', { comment: '정답. 복수정답의 경우 콤마+공백문자로 구분' })
+  answer: string;
 
   @Column('text', { comment: '해설' })
   explanation: string;

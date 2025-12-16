@@ -70,6 +70,8 @@ export class QuestionService extends CRUDService<QuestionEntity> {
       choiceC: q.choiceC,
       choiceD: q.choiceD,
       choiceE: q.choiceE,
+      isMultiple: q.answer.includes(','),
+      maxChoices: q.answer.split(',').length,
     };
   }
 
