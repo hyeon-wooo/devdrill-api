@@ -6,7 +6,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.use(cookieParser());
   app.enableCors({
-    origin: ['http://localhost:8080', 'https://saa.hyeonwoo.com'],
+    origin: ['http://localhost:8080', 'https://devdrill.hyeonwoo.com'],
     credentials: true,
     exposedHeaders: ['Authorization'],
   });
