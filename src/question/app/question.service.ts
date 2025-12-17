@@ -9,6 +9,7 @@ import { In, IsNull, Repository } from 'typeorm';
 import { QuestionEntity } from '../infra/question.entity';
 import * as fs from 'fs';
 import { QuestionHistoryService } from './question-history.service';
+import { EQuestionAction } from '../domain/question.enum';
 
 @Injectable()
 export class QuestionService extends CRUDService<QuestionEntity> {
@@ -81,21 +82,13 @@ export class QuestionService extends CRUDService<QuestionEntity> {
 
     const isCorrect = question.answer === myAnswer;
 
-    const history = await this.questionHistoryService.findOne({
+    await this.questionHistoryService.create({
       userId,
       questionId,
-      choicedAt: IsNull(),
+      action: EQuestionAction.SUBMIT,
+      choicedAnswer: myAnswer,
+      isCorrect,
     });
-
-    if (history)
-      await this.questionHistoryService.update(
-        { id: history.id },
-        {
-          choicedAt: new Date(),
-          choicedAnswer: myAnswer,
-          isCorrect,
-        },
-      );
 
     return {
       isCorrect,
