@@ -1,0 +1,7 @@
+services:
+  api:
+    image: docker.hyeonwoo.com/saa/api:25121701
+    ports:
+      - 3010:3000
+    env_file:
+      - api.env
