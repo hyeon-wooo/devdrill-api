@@ -14,4 +14,10 @@ export class UserEntity extends DefaultEntity {
 
   @Column('int', { comment: '등급', default: 10 })
   level: number;
+
+  @Column('varchar', { nullable: true, comment: 'FCM 토큰' })
+  fcm: string | null;
+
+  @Column('datetime', { nullable: true, comment: '마지막 로그인 일시' })
+  lastLoginAt: Date | null;
 }

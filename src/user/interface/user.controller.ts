@@ -1,13 +1,17 @@
 import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
 import { UserService } from '../app/user.service';
-import { LoginBodyDto, SignupBodyDto } from './user.dto';
+import { LoginBodyDto, RegisterFcmBodyDto, SignupBodyDto } from './user.dto';
 import { sendFailRes, sendSuccessRes } from 'src/common/generateResponse';
 import { JwtAuthGuard } from 'src/auth/jwt.guard';
 import { Request } from 'express';
+import { FcmHistoryService } from '../app/fcm-history.service';
 
 @Controller('user')
 export class UserController {
-  constructor(private readonly service: UserService) {}
+  constructor(
+    private readonly service: UserService,
+    private readonly fcmHistoryService: FcmHistoryService,
+  ) {}
 
   @Post('/signup')
   async signup(@Body() body: SignupBodyDto) {
@@ -31,6 +35,28 @@ export class UserController {
     const result = await this.service.refreshAccessToken(body.refreshToken);
 
     return sendSuccessRes(result);
+  }
+
+  @Post('/fcm')
+  async registerFcm(
+    @Body() body: RegisterFcmBodyDto,
+    @Req() { user }: Request,
+  ) {
+    if (!user) return sendFailRes('인증 정보가 올바르지 않습니다.');
+
+    await this.fcmHistoryService.create({
+      userId: user.id,
+      fcm: body.fcm,
+      deviceId: body.deviceId,
+      deviceModel: body.deviceModel,
+      deviceOsVersion: body.deviceOsVersion,
+      deviceOs: body.deviceOs,
+      appVersion: body.appVersion,
+    });
+
+    await this.service.update({ id: user.id }, { fcm: body.fcm });
+
+    return sendSuccessRes(null);
   }
 
   @Post('/logout')

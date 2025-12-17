@@ -19,3 +19,13 @@ export class LoginBodyDto {
   deviceOs: EDeviceOS;
   appVersion: string;
 }
+
+export class RegisterFcmBodyDto {
+  fcm: string;
+
+  deviceId: string;
+  deviceModel: string;
+  deviceOsVersion: string;
+  deviceOs: EDeviceOS;
+  appVersion: string;
+}
