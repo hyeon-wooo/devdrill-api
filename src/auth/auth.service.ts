@@ -15,12 +15,24 @@ export class AuthService {
     this.salt = Number(this.configService.get('BCRYPT_SALT'));
   }
 
-  generateToken(id: number, role: ERole) {
+  generateToken(id: number, role: ERole, level: number) {
     return {
-      accessToken: this.jwtService.sign({
-        id,
-        role,
-      }),
+      accessToken: this.jwtService.sign(
+        {
+          id,
+          role,
+          level,
+        },
+        { expiresIn: '1h' },
+      ),
+      refreshToken: this.jwtService.sign(
+        {
+          id,
+          role,
+          level,
+        },
+        { expiresIn: '30d' },
+      ),
     };
   }
 

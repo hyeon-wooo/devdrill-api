@@ -1,12 +1,54 @@
-import { Controller, Get } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { AppService } from './app.service';
+import { sendSuccessRes } from './common/generateResponse';
+import { UserService } from './user/app/user.service';
+import { AuthService } from './auth/auth.service';
+import { UserEntity } from './user/infra/user.entity';
+import { EDeviceOS } from './user/interface/user.dto';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(
+    private readonly appService: AppService,
+    private readonly userService: UserService,
+    private readonly authService: AuthService,
+  ) {}
 
   @Get()
   getHello(): string {
     return this.appService.getHello();
+  }
+
+  @Post('/launch')
+  async launch(
+    @Body()
+    body: {
+      refreshToken?: string;
+      deviceId: string;
+      deviceModel: string;
+      deviceOsVersion: string;
+      deviceOs: EDeviceOS;
+      appVersion: string;
+    },
+  ) {
+    const res: {
+      accessToken?: string;
+      refreshToken?: string;
+      me?: UserEntity;
+      needUpdate: boolean;
+    } = {
+      needUpdate: false,
+    };
+
+    if (body.refreshToken) {
+      const result = await this.userService.refreshAllToken(body.refreshToken);
+      res.accessToken = result.accessToken;
+      res.refreshToken = result.refreshToken;
+      res.me = result.me as UserEntity;
+    }
+
+    // TODO: 버전 검사
+
+    return sendSuccessRes(res);
   }
 }

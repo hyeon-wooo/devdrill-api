@@ -78,7 +78,7 @@ export abstract class CRUDService<TEntity extends ObjectLiteral> {
     return this.repo.save(entities);
   }
 
-  async deleteMany(ids: string[]): Promise<boolean> {
+  async deleteMany(ids: number[]): Promise<boolean> {
     await this.repo.softDelete(ids);
 
     return true;

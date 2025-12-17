@@ -62,10 +62,10 @@ export class QuestionController {
   @Post('/history/reset')
   @UseGuards(JwtAuthGuard)
   async resetHistory(
-    @Query('categoryId') categoryIdStr: string,
+    @Body() body: { categoryId: number },
     @Req() { user }: Request,
   ) {
-    const categoryId = Number(categoryIdStr);
+    const { categoryId } = body;
     const userId = user?.id ?? 0;
     await this.service.resetHistory(userId, categoryId);
     return sendSuccessRes(null);
