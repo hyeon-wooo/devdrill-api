@@ -38,11 +38,28 @@ export class UserController {
   }
 
   @Post('/fcm')
+  @UseGuards(JwtAuthGuard)
   async registerFcm(
     @Body() body: RegisterFcmBodyDto,
     @Req() { user }: Request,
   ) {
+    console.log('user: ', user);
     if (!user) return sendFailRes('인증 정보가 올바르지 않습니다.');
+
+    // 이전 FCM 토큰 삭제 및 강제로그아웃
+    const existingFcmHistory = await this.fcmHistoryService.findMany({
+      where: {
+        userId: user.id,
+      },
+    });
+
+    const existingHistoryIds = existingFcmHistory.map(
+      (fcmHistory) => fcmHistory.id,
+    );
+    await this.fcmHistoryService.deleteMany(existingHistoryIds);
+
+    const existingFcms = existingFcmHistory.map((fcmHistory) => fcmHistory.fcm);
+    // TODO: 강제로그아웃 푸시알림 발송
 
     await this.fcmHistoryService.create({
       userId: user.id,
