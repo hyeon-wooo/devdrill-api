@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { UserService } from '../app/user.service';
 import { LoginBodyDto, RegisterFcmBodyDto, SignupBodyDto } from './user.dto';
 import { sendFailRes, sendSuccessRes } from 'src/common/generateResponse';
@@ -42,6 +42,24 @@ export class UserController {
       body.deviceId,
     );
     return sendSuccessRes(result);
+  }
+
+  @Patch('/password')
+  @UseGuards(JwtAuthGuard)
+  async changePassword(
+    @Body()
+    body: { prevPassword: string; password: string; passwordConfirm: string },
+    @Req() { user }: Request,
+  ) {
+    if (!user) return sendFailRes('인증 정보가 올바르지 않습니다.');
+
+    const result = await this.service.changePassword(user.id, body);
+    if (result === -1) return sendFailRes('비정상적인 접근입니다.');
+    if (result === 1)
+      return sendFailRes('새 비밀번호와 비밀번호 확인이 일치하지 않습니다.');
+    if (result === 2) return sendFailRes('현재 비밀번호가 일치하지 않습니다.');
+
+    return sendSuccessRes(true);
   }
 
   @Post('/fcm')

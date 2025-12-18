@@ -146,4 +146,24 @@ export class UserService extends CRUDService<UserEntity> {
 
     return true;
   }
+
+  async changePassword(
+    userId: number,
+    body: { prevPassword: string; password: string; passwordConfirm: string },
+  ) {
+    if (body.password !== body.passwordConfirm) return 1;
+
+    const user = await this.findOne({ id: userId });
+    if (!user) return -1;
+
+    const isPasswordValid = await this.authService.comparePassword(
+      body.prevPassword,
+      user.password,
+    );
+    if (!isPasswordValid) return 2;
+
+    const hashedPassword = await this.authService.hashPassword(body.password);
+    await this.update({ id: userId }, { password: hashedPassword });
+    return 0;
+  }
 }
