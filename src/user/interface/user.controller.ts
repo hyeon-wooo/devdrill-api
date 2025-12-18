@@ -6,6 +6,7 @@ import { JwtAuthGuard } from 'src/auth/jwt.guard';
 import { Request } from 'express';
 import { FcmHistoryService } from '../app/fcm-history.service';
 import { ClientIp } from 'src/common/client-ip.decorator';
+import { Not } from 'typeorm';
 
 @Controller('user')
 export class UserController {
@@ -70,22 +71,7 @@ export class UserController {
   ) {
     if (!user) return sendFailRes('인증 정보가 올바르지 않습니다.');
 
-    // 이전 FCM 토큰 삭제 및 강제로그아웃
-    const existingFcmHistory = await this.fcmHistoryService.findMany({
-      where: {
-        userId: user.id,
-      },
-    });
-
-    const existingHistoryIds = existingFcmHistory.map(
-      (fcmHistory) => fcmHistory.id,
-    );
-    await this.fcmHistoryService.deleteMany(existingHistoryIds);
-
-    const existingFcms = existingFcmHistory.map((fcmHistory) => fcmHistory.fcm);
-    // TODO: 강제로그아웃 푸시알림 발송
-
-    await this.fcmHistoryService.create({
+    this.fcmHistoryService.create({
       userId: user.id,
       fcm: body.fcm,
       deviceId: body.deviceId,
