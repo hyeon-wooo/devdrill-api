@@ -109,7 +109,7 @@ export class UserService extends CRUDService<UserEntity> {
       userId: user.id,
       issuedDeviceId: deviceId,
     });
-    if (!tokenHistory) return -1;
+    if (!tokenHistory) return -2;
 
     await this.flushRefreshTokenByUserId(user.id);
 

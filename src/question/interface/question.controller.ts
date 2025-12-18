@@ -9,18 +9,20 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { QuestionService } from '../app/question.service';
-import { sendSuccessRes } from 'src/common/generateResponse';
+import { sendFailRes, sendSuccessRes } from 'src/common/generateResponse';
 import { RandomQuestionQueryDto, SubmitQuestionBodyDto } from './question.dto';
 import { JwtAuthGuard } from 'src/auth/jwt.guard';
 import { Request } from 'express';
 import { IJwtPayload } from 'src/auth/auth.interface';
 import { QuestionHistoryService } from '../app/question-history.service';
+import { AdService } from 'src/ad/app/ad.service';
 
 @Controller('question')
 export class QuestionController {
   constructor(
     private readonly service: QuestionService,
     private readonly questionHistoryService: QuestionHistoryService,
+    private readonly adService: AdService,
   ) {}
 
   @Post('/bulk')
@@ -35,12 +37,19 @@ export class QuestionController {
     @Query() query: RandomQuestionQueryDto,
     @Req() { user }: Request,
   ) {
+    if (!user) return sendFailRes('비정상적인 접근입니다.');
+
     const question = await this.service.getRandomQuestion(
-      user?.id ?? 0,
+      user.id,
       query.categoryId,
       query.ignoreAlreadySolved === 'y',
     );
-    return sendSuccessRes(question);
+
+    // level=10 (무료플랜) 사용자만 광고 표시
+    const needAd =
+      user.level === 10 ? await this.adService.needShowAd(user.id) : false;
+
+    return sendSuccessRes({ question, needAd });
   }
 
   @Post('/:id/submit')
@@ -51,7 +60,6 @@ export class QuestionController {
     @Req() { user }: Request,
   ) {
     const userId = user?.id ?? 0;
-    console.log('userId', userId);
 
     const id = Number(idStr);
     const { myAnswer } = body;

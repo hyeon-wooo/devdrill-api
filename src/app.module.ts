@@ -8,6 +8,7 @@ import { UserModule } from './user/user.module';
 import { QuestionModule } from './question/question.module';
 import { CategoryModule } from './category/category.module';
 import { NotificationModule } from './notification/notification.module';
+import { AdModule } from './ad/ad.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { NotificationModule } from './notification/notification.module';
     QuestionModule,
     CategoryModule,
     NotificationModule,
+    AdModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -49,7 +49,7 @@ export class AppController {
         body.deviceId,
       );
 
-      if (result !== -1) {
+      if (result !== -1 && result !== -2) {
         res.accessToken = result.accessToken;
         res.refreshToken = result.refreshToken;
         res.me = result.me as UserEntity;
