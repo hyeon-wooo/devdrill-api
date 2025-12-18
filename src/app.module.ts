@@ -9,6 +9,7 @@ import { QuestionModule } from './question/question.module';
 import { CategoryModule } from './category/category.module';
 import { NotificationModule } from './notification/notification.module';
 import { AdModule } from './ad/ad.module';
+import { ShopModule } from './shop/shop.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { AdModule } from './ad/ad.module';
     CategoryModule,
     NotificationModule,
     AdModule,
+    ShopModule,
   ],
   controllers: [AppController],
   providers: [AppService],
