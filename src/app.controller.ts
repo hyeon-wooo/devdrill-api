@@ -5,6 +5,7 @@ import { UserService } from './user/app/user.service';
 import { AuthService } from './auth/auth.service';
 import { UserEntity } from './user/infra/user.entity';
 import { EDeviceOS } from './user/interface/user.dto';
+import { ClientIp } from './common/client-ip.decorator';
 
 @Controller()
 export class AppController {
@@ -30,6 +31,7 @@ export class AppController {
       deviceOs: EDeviceOS;
       appVersion: string;
     },
+    @ClientIp() ip: string,
   ) {
     const res: {
       accessToken?: string;
@@ -41,7 +43,11 @@ export class AppController {
     };
 
     if (body.refreshToken) {
-      const result = await this.userService.refreshAllToken(body.refreshToken);
+      const result = await this.userService.refreshAllToken(
+        body.refreshToken,
+        ip,
+        body.deviceId,
+      );
       res.accessToken = result.accessToken;
       res.refreshToken = result.refreshToken;
       res.me = result.me as UserEntity;

@@ -23,7 +23,7 @@ export class AuthService {
           role,
           level,
         },
-        { expiresIn: '1h' },
+        { expiresIn: '1m' },
       ),
       refreshToken: this.jwtService.sign(
         {

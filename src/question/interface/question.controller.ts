@@ -51,6 +51,7 @@ export class QuestionController {
     @Req() { user }: Request,
   ) {
     const userId = user?.id ?? 0;
+    console.log('userId', userId);
 
     const id = Number(idStr);
     const { myAnswer } = body;

@@ -6,17 +6,19 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CRUDService } from 'src/common/crud.service';
-import { Repository } from 'typeorm';
+import { IsNull, MoreThan, Repository } from 'typeorm';
 import { UserEntity } from '../infra/user.entity';
 import { LoginBodyDto, SignupBodyDto } from '../interface/user.dto';
 import { AuthService } from 'src/auth/auth.service';
 import { ERole } from 'src/auth/role/role.enum';
+import { TokenHistoryService } from './token-history.service';
 
 @Injectable()
 export class UserService extends CRUDService<UserEntity> {
   constructor(
     @InjectRepository(UserEntity) repo: Repository<UserEntity>,
     private readonly authService: AuthService,
+    private readonly tokenHistoryService: TokenHistoryService,
   ) {
     super(repo);
   }
@@ -38,7 +40,7 @@ export class UserService extends CRUDService<UserEntity> {
     return createdUser;
   }
 
-  async login(body: LoginBodyDto) {
+  async login(body: LoginBodyDto, ip: string) {
     const { email, password } = body;
     const user = await this.findOne({ email });
     if (!user) return -1;
@@ -49,11 +51,22 @@ export class UserService extends CRUDService<UserEntity> {
     );
     if (!isPasswordValid) return -1;
 
+    await this.flushRefreshTokenByUserId(user.id);
+
     const token = this.authService.generateToken(
       user.id,
       ERole.USR,
       user.level,
     );
+
+    await this.tokenHistoryService.create({
+      userId: user.id,
+      refreshToken: token.refreshToken,
+      issuedAt: new Date(),
+      expiredAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30일
+      issuedIp: ip,
+      issuedDeviceId: body.deviceId,
+    });
 
     const { password: _, ...me } = user;
 
@@ -63,9 +76,15 @@ export class UserService extends CRUDService<UserEntity> {
     };
   }
 
-  async refreshAccessToken(refreshToken: string) {
+  async refreshAccessToken(refreshToken: string, ip: string) {
     const decoded = this.authService.decodeToken(refreshToken);
     if (!decoded) return -1;
+
+    const tokenHistory = await this.tokenHistoryService.findOne({
+      refreshToken,
+      expiredAt: MoreThan(new Date()),
+    });
+    if (!tokenHistory) return -2;
 
     const user = await this.findOne({ id: decoded.id });
     if (!user) return -1;
@@ -79,18 +98,29 @@ export class UserService extends CRUDService<UserEntity> {
     return { accessToken: token.accessToken };
   }
 
-  async refreshAllToken(refreshToken: string) {
+  async refreshAllToken(refreshToken: string, ip: string, deviceId: string) {
     const decoded = this.authService.decodeToken(refreshToken);
 
     const user = await this.findOne({ id: decoded.id });
     if (!user)
       throw new UnauthorizedException('인증 정보가 올바르지 않습니다.');
 
+    await this.flushRefreshTokenByUserId(user.id);
+
     const token = this.authService.generateToken(
       user.id,
       ERole.USR,
       user.level,
     );
+
+    await this.tokenHistoryService.create({
+      userId: user.id,
+      refreshToken: token.refreshToken,
+      issuedAt: new Date(),
+      expiredAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30일
+      issuedIp: ip,
+      issuedDeviceId: deviceId,
+    });
 
     const { password: _, ...me } = user;
 
@@ -99,5 +129,15 @@ export class UserService extends CRUDService<UserEntity> {
       refreshToken: token.refreshToken,
       me,
     };
+  }
+
+  // 기존 발급된 리프레시토큰 삭제
+  async flushRefreshTokenByUserId(userId: number) {
+    await this.tokenHistoryService.deleteWithWhere({
+      userId,
+      deletedAt: IsNull(),
+    });
+
+    return true;
   }
 }
