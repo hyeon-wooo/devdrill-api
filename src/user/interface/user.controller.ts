@@ -33,10 +33,14 @@ export class UserController {
 
   @Post('/refresh-access-token')
   async refreshAccessToken(
-    @Body() body: { refreshToken: string },
+    @Body() body: { refreshToken: string; deviceId: string },
     @ClientIp() ip: string,
   ) {
-    const result = await this.service.refreshAccessToken(body.refreshToken, ip);
+    const result = await this.service.renewRefreshToken(
+      body.refreshToken,
+      ip,
+      body.deviceId,
+    );
     return sendSuccessRes(result);
   }
 

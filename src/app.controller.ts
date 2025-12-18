@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { AppService } from './app.service';
-import { sendSuccessRes } from './common/generateResponse';
+import { sendFailRes, sendSuccessRes } from './common/generateResponse';
 import { UserService } from './user/app/user.service';
 import { AuthService } from './auth/auth.service';
 import { UserEntity } from './user/infra/user.entity';
@@ -43,14 +43,17 @@ export class AppController {
     };
 
     if (body.refreshToken) {
-      const result = await this.userService.refreshAllToken(
+      const result = await this.userService.renewRefreshToken(
         body.refreshToken,
         ip,
         body.deviceId,
       );
-      res.accessToken = result.accessToken;
-      res.refreshToken = result.refreshToken;
-      res.me = result.me as UserEntity;
+
+      if (result !== -1) {
+        res.accessToken = result.accessToken;
+        res.refreshToken = result.refreshToken;
+        res.me = result.me as UserEntity;
+      }
     }
 
     // TODO: 버전 검사

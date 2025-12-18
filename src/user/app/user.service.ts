@@ -98,12 +98,18 @@ export class UserService extends CRUDService<UserEntity> {
     return { accessToken: token.accessToken };
   }
 
-  async refreshAllToken(refreshToken: string, ip: string, deviceId: string) {
+  async renewRefreshToken(refreshToken: string, ip: string, deviceId: string) {
     const decoded = this.authService.decodeToken(refreshToken);
+    if (!decoded) return -1;
 
     const user = await this.findOne({ id: decoded.id });
-    if (!user)
-      throw new UnauthorizedException('인증 정보가 올바르지 않습니다.');
+    if (!user) return -1;
+
+    const tokenHistory = await this.tokenHistoryService.findOne({
+      userId: user.id,
+      issuedDeviceId: deviceId,
+    });
+    if (!tokenHistory) return -1;
 
     await this.flushRefreshTokenByUserId(user.id);
 
