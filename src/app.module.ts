@@ -7,6 +7,7 @@ import { DBConfigService } from './config/DBConfigService';
 import { UserModule } from './user/user.module';
 import { QuestionModule } from './question/question.module';
 import { CategoryModule } from './category/category.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { CategoryModule } from './category/category.module';
     UserModule,
     QuestionModule,
     CategoryModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [AppService],
