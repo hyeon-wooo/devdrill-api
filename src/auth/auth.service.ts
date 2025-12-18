@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ERole } from './role/role.enum';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
+import { UserEntity } from 'src/user/infra/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -15,21 +16,23 @@ export class AuthService {
     this.salt = Number(this.configService.get('BCRYPT_SALT'));
   }
 
-  generateToken(id: number, role: ERole, level: number) {
+  generateToken(user: UserEntity) {
     return {
       accessToken: this.jwtService.sign(
         {
-          id,
-          role,
-          level,
+          id: user.id,
+          role: ERole.USR,
+          level: user.level,
+          canSkipAd: user.canSkipAd,
+          canReadAll: user.canReadAll,
         },
         { expiresIn: '1m' },
       ),
       refreshToken: this.jwtService.sign(
         {
-          id,
-          role,
-          level,
+          id: user.id,
+          role: ERole.USR,
+          level: user.level,
         },
         { expiresIn: '30d' },
       ),

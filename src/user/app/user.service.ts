@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CRUDService } from 'src/common/crud.service';
-import { IsNull, MoreThan, Repository } from 'typeorm';
+import { DeepPartial, IsNull, MoreThan, Repository } from 'typeorm';
 import { UserEntity } from '../infra/user.entity';
 import { LoginBodyDto, SignupBodyDto } from '../interface/user.dto';
 import { AuthService } from 'src/auth/auth.service';
@@ -53,11 +53,7 @@ export class UserService extends CRUDService<UserEntity> {
 
     await this.flushRefreshTokenByUserId(user.id);
 
-    const token = this.authService.generateToken(
-      user.id,
-      ERole.USR,
-      user.level,
-    );
+    const token = this.authService.generateToken(user);
 
     await this.tokenHistoryService.create({
       userId: user.id,
@@ -89,11 +85,7 @@ export class UserService extends CRUDService<UserEntity> {
     const user = await this.findOne({ id: decoded.id });
     if (!user) return -1;
 
-    const token = this.authService.generateToken(
-      user.id,
-      ERole.USR,
-      user.level,
-    );
+    const token = this.authService.generateToken(user);
 
     return { accessToken: token.accessToken };
   }
@@ -113,11 +105,7 @@ export class UserService extends CRUDService<UserEntity> {
 
     await this.flushRefreshTokenByUserId(user.id);
 
-    const token = this.authService.generateToken(
-      user.id,
-      ERole.USR,
-      user.level,
-    );
+    const token = this.authService.generateToken(user);
 
     await this.tokenHistoryService.create({
       userId: user.id,
@@ -165,5 +153,21 @@ export class UserService extends CRUDService<UserEntity> {
     const hashedPassword = await this.authService.hashPassword(body.password);
     await this.update({ id: userId }, { password: hashedPassword });
     return 0;
+  }
+
+  async setPremium(
+    userId: number,
+    body: { canSkipAd: boolean; canReadAll: boolean },
+  ) {
+    if (body.canSkipAd === undefined && body.canReadAll === undefined)
+      return false;
+
+    const updating: DeepPartial<UserEntity> = {};
+
+    if (body.canSkipAd !== undefined) updating.canSkipAd = body.canSkipAd;
+    if (body.canReadAll !== undefined) updating.canReadAll = body.canReadAll;
+
+    await this.update({ id: userId }, updating);
+    return true;
   }
 }

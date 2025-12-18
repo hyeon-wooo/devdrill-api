@@ -20,4 +20,10 @@ export class UserEntity extends DefaultEntity {
 
   @Column('datetime', { nullable: true, comment: '마지막 로그인 일시' })
   lastLoginAt: Date | null;
+
+  @Column('boolean', { default: false, comment: '광고 건너뛰기 가능 여부' })
+  canSkipAd: boolean;
+
+  @Column('boolean', { default: false, comment: '모든 문제 읽기 가능 여부' })
+  canReadAll: boolean;
 }

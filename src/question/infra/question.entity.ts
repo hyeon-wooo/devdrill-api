@@ -35,6 +35,9 @@ export class QuestionEntity extends DefaultEntity {
   @Column('text', { comment: '해설' })
   explanation: string;
 
+  @Column('boolean', { default: false, comment: '프리미엄 문제 여부' })
+  isPremium: boolean;
+
   @Column('int', { comment: '카테고리 ID (category.id)' })
   categoryId: number;
 

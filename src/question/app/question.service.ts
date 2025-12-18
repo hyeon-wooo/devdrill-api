@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CRUDService } from 'src/common/crud.service';
-import { In, IsNull, Repository } from 'typeorm';
+import { FindOptionsWhere, In, IsNull, Repository } from 'typeorm';
 import { QuestionEntity } from '../infra/question.entity';
 import * as fs from 'fs';
 import { QuestionHistoryService } from './question-history.service';
@@ -31,12 +31,17 @@ export class QuestionService extends CRUDService<QuestionEntity> {
   async getRandomQuestion(
     userId: number,
     categoryId: number,
+    canReadAll: boolean,
     ignoreAlreadySolved: boolean,
   ) {
+    const condition: FindOptionsWhere<QuestionEntity> = {
+      categoryId,
+    };
+    // '모든문제읽기가능' 사용자가 아닌 경우 프리미엄 문제 제외
+    if (!canReadAll) condition.isPremium = false;
+
     let questions = await this.findMany({
-      where: {
-        categoryId,
-      },
+      where: condition,
     });
 
     if (ignoreAlreadySolved) {
@@ -54,6 +59,8 @@ export class QuestionService extends CRUDService<QuestionEntity> {
           !alreadySolvedQuestions.some((q) => q.questionId === question.id),
       );
     }
+    if (questions.length === 0) return -1;
+
     const randomIndex = Math.floor(Math.random() * questions.length);
     const q = questions[randomIndex];
 

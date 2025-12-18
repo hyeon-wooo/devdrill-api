@@ -42,12 +42,16 @@ export class QuestionController {
     const question = await this.service.getRandomQuestion(
       user.id,
       query.categoryId,
+      user.canReadAll,
       query.ignoreAlreadySolved === 'y',
     );
 
-    // level=10 (무료플랜) 사용자만 광고 표시
-    const needAd =
-      user.level === 10 ? await this.adService.needShowAd(user.id) : false;
+    if (question === -1) return sendFailRes('solved all');
+
+    // 무료플랜 사용자만 광고 표시
+    const needAd = user.canSkipAd
+      ? false
+      : await this.adService.needShowAd(user.id);
 
     return sendSuccessRes({ question, needAd });
   }
