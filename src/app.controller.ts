@@ -40,11 +40,13 @@ export class AppController {
       needUpdate: boolean;
       storeUrlIos: string;
       storeUrlAndroid: string;
+      adEnv: 'dev' | 'prod';
     } = {
       needUpdate: false,
       storeUrlIos: 'https://apps.apple.com/app/id6756648110',
       storeUrlAndroid:
         'https://play.google.com/store/apps/details?id=com.the9thstation.devdrill',
+      adEnv: 'dev',
     };
 
     if (body.refreshToken) {
