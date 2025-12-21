@@ -104,7 +104,7 @@ export class QuestionService extends CRUDService<QuestionEntity> {
     const question = await this.findOne({ id: questionId });
     if (!question) throw new NotFoundException('문제를 찾을 수 없습니다.');
 
-    const sortedAnswer = question.answer.split(', ').sort().join(', ');
+    const sortedAnswer = myAnswer.split(', ').sort().join(', ');
     const isCorrect = question.answer === sortedAnswer;
 
     await this.questionHistoryService.create({
