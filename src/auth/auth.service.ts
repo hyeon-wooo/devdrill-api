@@ -4,6 +4,7 @@ import { ERole } from './role/role.enum';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { UserEntity } from 'src/user/infra/user.entity';
+import { AdminEntity } from 'src/admin/infra/admin.entity';
 
 @Injectable()
 export class AuthService {
@@ -14,6 +15,14 @@ export class AuthService {
     private configService: ConfigService,
   ) {
     this.salt = Number(this.configService.get('BCRYPT_SALT'));
+  }
+
+  verify(token: string) {
+    try {
+      return this.jwtService.verify(token);
+    } catch (error) {
+      return null;
+    }
   }
 
   generateToken(user: UserEntity) {
@@ -33,6 +42,27 @@ export class AuthService {
           id: user.id,
           role: ERole.USR,
           level: user.level,
+        },
+        { expiresIn: '30d' },
+      ),
+    };
+  }
+
+  generateAdminToken(admin: AdminEntity) {
+    return {
+      accessToken: this.jwtService.sign(
+        {
+          id: admin.id,
+          role: ERole.ADM,
+          level: admin.level,
+        },
+        { expiresIn: '1m' },
+      ),
+      refreshToken: this.jwtService.sign(
+        {
+          id: admin.id,
+          role: ERole.ADM,
+          level: admin.level,
         },
         { expiresIn: '30d' },
       ),

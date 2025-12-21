@@ -1,8 +1,9 @@
-export const sendFailRes = (msg: string) => {
+export const sendFailRes = (msg: string, code?: string) => {
   return {
     success: false,
     err: {
       msg,
+      code,
     },
   };
 };

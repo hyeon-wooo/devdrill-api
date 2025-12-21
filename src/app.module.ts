@@ -12,7 +12,9 @@ import { AdModule } from './ad/ad.module';
 import { ShopModule } from './shop/shop.module';
 import { FileModule } from './file/file.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { AdminModule } from './admin/admin.module';
 import * as dotenv from 'dotenv';
+import { BatchModule } from './batch/batch.module';
 
 dotenv.config();
 
@@ -27,6 +29,7 @@ dotenv.config();
       imports: [ConfigModule],
       useClass: DBConfigService,
     }),
+    BatchModule,
     UserModule,
     QuestionModule,
     CategoryModule,
@@ -34,6 +37,7 @@ dotenv.config();
     AdModule,
     ShopModule,
     FileModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [AppService],
