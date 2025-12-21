@@ -13,6 +13,8 @@ import { QuestionService } from '../app/question.service';
 import { sendFailRes, sendSuccessRes } from 'src/common/generateResponse';
 import {
   CreateQuestionBodyDto,
+  QuestionListItemDto,
+  QuestionListQueryDto,
   RandomQuestionQueryDto,
   SubmitQuestionBodyDto,
   UpdateQuestionBodyDto,
@@ -22,6 +24,8 @@ import { Request } from 'express';
 import { IJwtPayload } from 'src/auth/auth.interface';
 import { QuestionHistoryService } from '../app/question-history.service';
 import { AdService } from 'src/ad/app/ad.service';
+import { FindManyOptions, FindOptionsWhere } from 'typeorm';
+import { QuestionEntity } from '../infra/question.entity';
 
 @Controller('question')
 export class QuestionController {
@@ -35,6 +39,58 @@ export class QuestionController {
   async bulk() {
     await this.service.bulkInsert();
     return sendSuccessRes(null);
+  }
+
+  @Get('/')
+  async getList(@Query() query: QuestionListQueryDto) {
+    const condition: FindOptionsWhere<QuestionEntity> = {};
+    if (query.categoryId) {
+      condition.categoryId = Number(query.categoryId);
+    }
+
+    const options: FindManyOptions<QuestionEntity> = {
+      where: condition,
+      order: {
+        createdAt: 'DESC',
+      },
+      relations: {
+        category: true,
+      },
+    };
+
+    if (query.from) options.skip = query.from;
+    if (query.limit) options.take = query.limit;
+
+    const projects = await this.service.findMany(options);
+
+    const responseData: {
+      list: QuestionListItemDto[];
+      totalCount?: number;
+    } = {
+      list: projects.map((question) => new QuestionListItemDto(question)),
+    };
+
+    if (query.needTotalCount) {
+      const totalCount = await this.service.count(condition);
+      responseData.totalCount = totalCount;
+    }
+
+    return sendSuccessRes(responseData);
+  }
+
+  @Get('/:id')
+  async getDetail(@Param('id') idStr: string) {
+    const id = Number(idStr);
+    const question = await this.service.findOne(
+      { id },
+      {
+        category: true,
+        metadata: { image: true },
+      },
+    );
+    if (!question) return sendFailRes('접근할 수 없는 문제입니다.');
+
+    return sendSuccessRes({ question });
   }
 
   @Get('/random')

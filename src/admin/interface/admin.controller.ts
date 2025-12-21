@@ -1,4 +1,12 @@
-import { Body, Controller, Post, Req, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { AdminService } from '../app/admin.service';
 import { sendFailRes, sendSuccessRes } from 'src/common/generateResponse';
 import { LoginBodyDto } from 'src/user/interface/user.dto';
@@ -8,6 +16,7 @@ import {
   REFRESH_COOKIE_NAME,
 } from 'src/auth/auth.constant';
 import { AuthService } from 'src/auth/auth.service';
+import { JwtAuthGuard } from 'src/auth/jwt.guard';
 
 @Controller('admin')
 export class AdminController {
@@ -15,6 +24,22 @@ export class AdminController {
     private readonly service: AdminService,
     private readonly authService: AuthService,
   ) {}
+
+  @Get('/me')
+  @UseGuards(JwtAuthGuard)
+  async me(@Req() { user }: Request) {
+    if (!user) return sendFailRes('로그인 후 이용해주세요.');
+    const found = await this.service.findOne({ id: user.id });
+    if (!found) return sendFailRes('존재하지 않는 계정입니다.');
+
+    return sendSuccessRes({
+      me: {
+        id: found.id,
+        level: found.level,
+        email: found.email,
+      },
+    });
+  }
 
   @Post('/login')
   async login(@Body() body: LoginBodyDto, @Res() res: Response) {

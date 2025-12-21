@@ -19,8 +19,8 @@ export interface ISearchArg<TEntity> {
 export abstract class CRUDService<TEntity extends ObjectLiteral> {
   constructor(protected repo: Repository<TEntity>) {}
 
-  count(withDeleted: boolean = false) {
-    return this.repo.count({ withDeleted });
+  async count(condition?: FindOptionsWhere<TEntity>): Promise<number> {
+    return this.repo.count({ where: condition ?? {} });
   }
 
   findOne(

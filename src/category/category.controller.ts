@@ -47,4 +47,14 @@ export class CategoryController {
 
     return sendSuccessRes({ list });
   }
+
+  @Get('/all')
+  async getAllCategories() {
+    const categories = await this.service.findMany({
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+    return sendSuccessRes({ list: categories });
+  }
 }

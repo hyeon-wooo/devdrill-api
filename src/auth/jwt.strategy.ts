@@ -6,7 +6,7 @@ import { Request } from 'express';
 
 const extractFromCookie = (req: Request) => {
   if (req && req.cookies) {
-    return req.cookies['aat'] || null;
+    return req.cookies['at'] || null;
   }
 };
 
