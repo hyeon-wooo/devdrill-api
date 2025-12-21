@@ -17,6 +17,8 @@ export enum EQuestionMetadataPosition {
   CHOICE_E = 'choiceE',
   CHOICE_F = 'choiceF',
   EXPLANATION = 'explanation',
+  EXPLANATION2 = 'explanation2',
+  EXPLANATION3 = 'explanation3',
 }
 
 export enum EQuestionCodeLanguage {

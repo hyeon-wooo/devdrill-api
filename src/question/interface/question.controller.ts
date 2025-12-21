@@ -78,21 +78,6 @@ export class QuestionController {
     return sendSuccessRes(responseData);
   }
 
-  @Get('/:id')
-  async getDetail(@Param('id') idStr: string) {
-    const id = Number(idStr);
-    const question = await this.service.findOne(
-      { id },
-      {
-        category: true,
-        metadata: { image: true },
-      },
-    );
-    if (!question) return sendFailRes('접근할 수 없는 문제입니다.');
-
-    return sendSuccessRes({ question });
-  }
-
   @Get('/random')
   @UseGuards(JwtAuthGuard)
   async getRandom(
@@ -118,6 +103,21 @@ export class QuestionController {
       : await this.adService.needShowAd(user.id);
 
     return sendSuccessRes({ question, metadata, needAd });
+  }
+
+  @Get('/:id')
+  async getDetail(@Param('id') idStr: string) {
+    const id = Number(idStr);
+    const question = await this.service.findOne(
+      { id },
+      {
+        category: true,
+        metadata: { image: true },
+      },
+    );
+    if (!question) return sendFailRes('접근할 수 없는 문제입니다.');
+
+    return sendSuccessRes({ question });
   }
 
   @Post('/')
