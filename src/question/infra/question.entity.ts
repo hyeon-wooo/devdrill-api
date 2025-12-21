@@ -1,7 +1,8 @@
 import { DefaultEntity } from 'src/common/default.entity';
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 import { CategoryEntity } from 'src/category/category.entity';
 import { JoinColumn } from 'typeorm';
+import { QuestionMetadataEntity } from './question-metadata.entity';
 
 @Entity({ name: 'question', comment: '문제' })
 export class QuestionEntity extends DefaultEntity {
@@ -32,11 +33,21 @@ export class QuestionEntity extends DefaultEntity {
   @Column('varchar', { comment: '정답. 복수정답의 경우 콤마+공백문자로 구분' })
   answer: string;
 
+  @Column('varchar', { comment: '주제', default: 'unknown' })
+  topic: string;
+
   @Column('text', { comment: '해설' })
   explanation: string;
+  @Column('text', { comment: '해설2', nullable: true })
+  explanation2: string | null;
+  @Column('text', { comment: '해설3', nullable: true })
+  explanation3: string | null;
 
   @Column('boolean', { default: false, comment: '프리미엄 문제 여부' })
   isPremium: boolean;
+
+  @Column('boolean', { default: false, comment: '메타데이터 존재 여부' })
+  hasMetadata: boolean;
 
   @Column('int', { comment: '카테고리 ID (category.id)' })
   categoryId: number;
@@ -44,4 +55,7 @@ export class QuestionEntity extends DefaultEntity {
   @ManyToOne(() => CategoryEntity)
   @JoinColumn({ name: 'categoryId' })
   category: CategoryEntity;
+
+  @OneToMany(() => QuestionMetadataEntity, (metadata) => metadata.question)
+  metadata: QuestionMetadataEntity[];
 }

@@ -4,13 +4,19 @@ import {
   Get,
   Param,
   Post,
+  Put,
   Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
 import { QuestionService } from '../app/question.service';
 import { sendFailRes, sendSuccessRes } from 'src/common/generateResponse';
-import { RandomQuestionQueryDto, SubmitQuestionBodyDto } from './question.dto';
+import {
+  CreateQuestionBodyDto,
+  RandomQuestionQueryDto,
+  SubmitQuestionBodyDto,
+  UpdateQuestionBodyDto,
+} from './question.dto';
 import { JwtAuthGuard } from 'src/auth/jwt.guard';
 import { Request } from 'express';
 import { IJwtPayload } from 'src/auth/auth.interface';
@@ -48,12 +54,20 @@ export class QuestionController {
 
     if (question === -1) return sendFailRes('solved all');
 
+    const metadata = await this.service.getMetadata(question.id);
+
     // 무료플랜 사용자만 광고 표시
     const needAd = user.canSkipAd
       ? false
       : await this.adService.needShowAd(user.id);
 
-    return sendSuccessRes({ question, needAd });
+    return sendSuccessRes({ question, metadata, needAd });
+  }
+
+  @Post('/')
+  async createQuestion(@Body() body: CreateQuestionBodyDto) {
+    const created = await this.service.createQuestion(body);
+    return sendSuccessRes({ id: created.id });
   }
 
   @Post('/:id/submit')
@@ -67,9 +81,22 @@ export class QuestionController {
 
     const id = Number(idStr);
     const { myAnswer } = body;
-    const { answer, explanation, isCorrect } =
-      await this.service.submitQuestion(userId, id, myAnswer);
-    return sendSuccessRes({ answer, explanation, isCorrect });
+    const {
+      answer,
+      topic,
+      explanation,
+      explanation2,
+      explanation3,
+      isCorrect,
+    } = await this.service.submitQuestion(userId, id, myAnswer);
+    return sendSuccessRes({
+      answer,
+      topic,
+      explanation,
+      explanation2,
+      explanation3,
+      isCorrect,
+    });
   }
 
   @Post('/history/reset')
@@ -82,5 +109,15 @@ export class QuestionController {
     const userId = user?.id ?? 0;
     await this.service.resetHistory(userId, categoryId);
     return sendSuccessRes(null);
+  }
+
+  @Put('/:id')
+  async updateQuestion(
+    @Param('id') idStr: string,
+    @Body() body: UpdateQuestionBodyDto,
+  ) {
+    const id = Number(idStr);
+    await this.service.updateQuestion(id, body);
+    return sendSuccessRes(true);
   }
 }

@@ -6,14 +6,20 @@ import { QuestionEntity } from './infra/question.entity';
 import { QuestionHistoryEntity } from './infra/question-history.entity';
 import { QuestionHistoryService } from './app/question-history.service';
 import { AdModule } from 'src/ad/ad.module';
+import { QuestionMetadataEntity } from './infra/question-metadata.entity';
+import { QuestionMetadataService } from './app/question-metadata.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([QuestionEntity, QuestionHistoryEntity]),
+    TypeOrmModule.forFeature([
+      QuestionEntity,
+      QuestionHistoryEntity,
+      QuestionMetadataEntity,
+    ]),
     AdModule,
   ],
   controllers: [QuestionController],
-  providers: [QuestionService, QuestionHistoryService],
+  providers: [QuestionService, QuestionHistoryService, QuestionMetadataService],
   exports: [QuestionService],
 })
 export class QuestionModule {}

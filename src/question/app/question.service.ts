@@ -10,12 +10,18 @@ import { QuestionEntity } from '../infra/question.entity';
 import * as fs from 'fs';
 import { QuestionHistoryService } from './question-history.service';
 import { EQuestionAction } from '../domain/question.enum';
+import {
+  CreateQuestionBodyDto,
+  UpdateQuestionBodyDto,
+} from '../interface/question.dto';
+import { QuestionMetadataService } from './question-metadata.service';
 
 @Injectable()
 export class QuestionService extends CRUDService<QuestionEntity> {
   constructor(
     @InjectRepository(QuestionEntity) repo: Repository<QuestionEntity>,
     private readonly questionHistoryService: QuestionHistoryService,
+    private readonly metadataService: QuestionMetadataService,
   ) {
     super(repo);
   }
@@ -26,6 +32,15 @@ export class QuestionService extends CRUDService<QuestionEntity> {
     for (const question of questions) {
       await this.create(question);
     }
+  }
+
+  async getMetadata(questionId: number) {
+    return this.metadataService.findMany({
+      where: { questionId },
+      relations: {
+        image: true,
+      },
+    });
   }
 
   async getRandomQuestion(
@@ -78,6 +93,8 @@ export class QuestionService extends CRUDService<QuestionEntity> {
       choiceC: q.choiceC,
       choiceD: q.choiceD,
       choiceE: q.choiceE,
+      choiceF: q.choiceF,
+      topic: q.topic,
       isMultiple: q.answer.includes(','),
       maxChoices: q.answer.split(',').length,
     };
@@ -101,7 +118,10 @@ export class QuestionService extends CRUDService<QuestionEntity> {
     return {
       isCorrect,
       answer: question.answer,
+      topic: question.topic,
       explanation: question.explanation,
+      explanation2: question.explanation2,
+      explanation3: question.explanation3,
     };
   }
 
@@ -139,5 +159,34 @@ export class QuestionService extends CRUDService<QuestionEntity> {
     });
 
     return solvedHistories.length;
+  }
+
+  async createQuestion(body: CreateQuestionBodyDto) {
+    const { metadata, ...rest } = body;
+    const created = await this.create({
+      ...rest,
+      hasMetadata: metadata.length > 0,
+    });
+    await this.metadataService.create(
+      metadata.map((m) => ({ ...m, questionId: created[0].id })),
+    );
+    return created[0];
+  }
+
+  async updateQuestion(id: number, body: UpdateQuestionBodyDto) {
+    const found = await this.findOne({ id });
+    if (!found) return false;
+
+    const { metadata, ...rest } = body;
+    Object.assign(found, { ...rest, hasMetadata: metadata.length > 0 });
+
+    await this.save([found]);
+
+    await this.metadataService.deleteWithWhere({ questionId: id });
+    await this.metadataService.create(
+      metadata.map((m) => ({ ...m, questionId: id })),
+    );
+
+    return true;
   }
 }
