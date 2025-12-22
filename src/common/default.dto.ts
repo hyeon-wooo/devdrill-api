@@ -10,5 +10,8 @@ export class ListQueryDto {
 
   limit?: number;
 
+  searchKeyword?: string;
+  searchField?: string;
+
   needTotalCount?: boolean;
 }

@@ -24,7 +24,7 @@ import { Request } from 'express';
 import { IJwtPayload } from 'src/auth/auth.interface';
 import { QuestionHistoryService } from '../app/question-history.service';
 import { AdService } from 'src/ad/app/ad.service';
-import { FindManyOptions, FindOptionsWhere } from 'typeorm';
+import { FindManyOptions, FindOptionsWhere, Like } from 'typeorm';
 import { QuestionEntity } from '../infra/question.entity';
 
 @Controller('question')
@@ -46,6 +46,20 @@ export class QuestionController {
     const condition: FindOptionsWhere<QuestionEntity> = {};
     if (query.categoryId) {
       condition.categoryId = Number(query.categoryId);
+    }
+
+    if (query.searchKeyword) {
+      switch (query.searchField) {
+        case 'id':
+        case 'questionNumber':
+          const num = Number(query.searchKeyword);
+          if (!isNaN(num)) condition[query.searchField] = num;
+          break;
+        default:
+          condition[query.searchField ?? 'topic'] = Like(
+            `%${query.searchKeyword}%`,
+          );
+      }
     }
 
     const options: FindManyOptions<QuestionEntity> = {
