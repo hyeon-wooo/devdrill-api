@@ -68,11 +68,13 @@ export class QuestionService extends CRUDService<QuestionEntity> {
           },
         },
       );
-
-      questions = questions.filter(
-        (question) =>
-          !alreadySolvedQuestions.some((q) => q.questionId === question.id),
-      );
+      const distinctSolvedQuestionIds = [
+        ...new Set(alreadySolvedQuestions.map((q) => q.questionId)),
+      ];
+      if (distinctSolvedQuestionIds.length < questions.length)
+        questions = questions.filter(
+          (question) => !distinctSolvedQuestionIds.includes(question.id),
+        );
     }
     if (questions.length === 0) return -1;
 

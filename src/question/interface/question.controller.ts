@@ -104,7 +104,7 @@ export class QuestionController {
       user.id,
       query.categoryId,
       user.canReadAll,
-      query.ignoreAlreadySolved === 'y',
+      query.ignoreAlreadySolved ? query.ignoreAlreadySolved === 'y' : true,
     );
 
     if (question === -1) return sendFailRes('solved all');
