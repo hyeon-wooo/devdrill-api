@@ -30,7 +30,7 @@ export class FileService extends CRUDService<FileEntity> {
       usage: params.usage,
       originalName: params.originalName,
       fileSize: params.size,
-      pathOrigin: path.join('public/image', params.filename),
+      pathOrigin: path.join('public', params.filename),
     });
 
     return saved[0];
