@@ -6,6 +6,7 @@ import { AuthService } from './auth/auth.service';
 import { UserEntity } from './user/infra/user.entity';
 import { EDeviceOS } from './user/interface/user.dto';
 import { ClientIp } from './common/client-ip.decorator';
+import { ConfigService } from '@nestjs/config';
 
 @Controller()
 export class AppController {
@@ -13,6 +14,7 @@ export class AppController {
     private readonly appService: AppService,
     private readonly userService: UserService,
     private readonly authService: AuthService,
+    private readonly configService: ConfigService,
   ) {}
 
   @Get()
@@ -46,7 +48,8 @@ export class AppController {
       storeUrlIos: 'https://apps.apple.com/app/id6756648110',
       storeUrlAndroid:
         'https://play.google.com/store/apps/details?id=com.the9thstation.devdrill',
-      adEnv: 'dev',
+      adEnv:
+        this.configService.get('NODE_ENV') === 'production' ? 'prod' : 'dev',
     };
 
     if (body.refreshToken) {
