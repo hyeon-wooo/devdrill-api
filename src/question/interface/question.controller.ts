@@ -45,7 +45,10 @@ export class QuestionController {
   async getList(@Query() query: QuestionListQueryDto) {
     const condition: FindOptionsWhere<QuestionEntity> = {};
     if (query.categoryId) {
-      condition.categoryId = Number(query.categoryId);
+      if (query.categoryId) condition.categoryId = Number(query.categoryId);
+    }
+    if (query.examId) {
+      if (query.examId) condition.examId = Number(query.examId);
     }
 
     if (query.searchKeyword) {
@@ -69,6 +72,7 @@ export class QuestionController {
       },
       relations: {
         category: true,
+        exam: true,
       },
     };
 
@@ -102,7 +106,7 @@ export class QuestionController {
 
     const question = await this.service.getRandomQuestion(
       user.id,
-      query.categoryId,
+      query.examId,
       user.canReadAll,
       query.ignoreAlreadySolved ? query.ignoreAlreadySolved === 'y' : true,
     );
@@ -126,6 +130,7 @@ export class QuestionController {
       { id },
       {
         category: true,
+        exam: true,
         metadata: { image: true },
       },
     );
@@ -172,12 +177,12 @@ export class QuestionController {
   @Post('/history/reset')
   @UseGuards(JwtAuthGuard)
   async resetHistory(
-    @Body() body: { categoryId: number },
+    @Body() body: { examId: number },
     @Req() { user }: Request,
   ) {
-    const { categoryId } = body;
+    const { examId } = body;
     const userId = user?.id ?? 0;
-    await this.service.resetHistory(userId, categoryId);
+    await this.service.resetHistory(userId, examId);
     return sendSuccessRes(null);
   }
 

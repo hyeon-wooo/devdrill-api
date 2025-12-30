@@ -3,6 +3,7 @@ import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 import { CategoryEntity } from 'src/category/category.entity';
 import { JoinColumn } from 'typeorm';
 import { QuestionMetadataEntity } from './question-metadata.entity';
+import { ExamEntity } from 'src/exam/exam.entity';
 
 @Entity({ name: 'question', comment: '문제' })
 export class QuestionEntity extends DefaultEntity {
@@ -55,6 +56,13 @@ export class QuestionEntity extends DefaultEntity {
   @ManyToOne(() => CategoryEntity)
   @JoinColumn({ name: 'categoryId' })
   category: CategoryEntity;
+
+  @Column('int', { comment: '시험 ID (exam.id)', nullable: true })
+  examId: number | null;
+
+  @ManyToOne(() => ExamEntity)
+  @JoinColumn({ name: 'examId' })
+  exam: ExamEntity;
 
   @OneToMany(() => QuestionMetadataEntity, (metadata) => metadata.question)
   metadata: QuestionMetadataEntity[];

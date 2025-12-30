@@ -8,9 +8,10 @@ import { QuestionMetadataEntity } from '../infra/question-metadata.entity';
 import { CategoryEntity } from 'src/category/category.entity';
 import { QuestionEntity } from '../infra/question.entity';
 import { IntersectionType } from '@nestjs/mapped-types';
+import { ExamEntity } from 'src/exam/exam.entity';
 
 export class RandomQuestionQueryDto {
-  categoryId: number;
+  examId: number;
   ignoreAlreadySolved: 'y' | 'n';
 }
 
@@ -55,7 +56,8 @@ export class CreateQuestionBodyDto extends QuestionFieldDto {}
 export class UpdateQuestionBodyDto extends CreateQuestionBodyDto {}
 
 export class QuestionListQueryDto extends ListQueryDto {
-  categoryId: string;
+  categoryId?: string;
+  examId?: string;
 }
 
 export class QuestionListItemDto {
@@ -65,6 +67,8 @@ export class QuestionListItemDto {
     this.isPremium = question.isPremium;
     this.categoryId = question.categoryId;
     this.category = question.category;
+    this.examId = question.examId;
+    this.exam = question.exam;
     this.questionNumber = question.questionNumber;
     this.hasMetadata = question.hasMetadata;
     this.topic = question.topic;
@@ -74,6 +78,8 @@ export class QuestionListItemDto {
   isPremium: boolean;
   categoryId: number;
   category: CategoryEntity;
+  examId: number | null;
+  exam: ExamEntity;
   questionNumber: number;
   hasMetadata: boolean;
   topic: string;

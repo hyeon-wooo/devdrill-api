@@ -15,6 +15,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { AdminModule } from './admin/admin.module';
 import * as dotenv from 'dotenv';
 import { BatchModule } from './batch/batch.module';
+import { ExamModule } from './exam/exam.module';
 
 dotenv.config();
 
@@ -38,6 +39,7 @@ dotenv.config();
     ShopModule,
     FileModule,
     AdminModule,
+    ExamModule,
   ],
   controllers: [AppController],
   providers: [AppService],

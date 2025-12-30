@@ -45,12 +45,12 @@ export class QuestionService extends CRUDService<QuestionEntity> {
 
   async getRandomQuestion(
     userId: number,
-    categoryId: number,
+    examId: number,
     canReadAll: boolean,
     ignoreAlreadySolved: boolean,
   ) {
     const condition: FindOptionsWhere<QuestionEntity> = {
-      categoryId,
+      examId,
     };
     // '모든문제읽기가능' 사용자가 아닌 경우 프리미엄 문제 제외
     if (!canReadAll) condition.isPremium = false;
@@ -143,11 +143,11 @@ export class QuestionService extends CRUDService<QuestionEntity> {
     return true;
   }
 
-  async getSolvedCount(userId: number, categoryId: number) {
+  async getSolvedCount(userId: number, examId: number) {
     const ids = await this.findMany({
       select: ['id'],
       where: {
-        categoryId,
+        examId,
       },
     });
 
@@ -160,7 +160,11 @@ export class QuestionService extends CRUDService<QuestionEntity> {
       },
     });
 
-    return solvedHistories.length;
+    const distinctSolvedCount = new Set(
+      solvedHistories.map((history) => history.id),
+    ).size;
+
+    return Math.min(distinctSolvedCount, ids.length);
   }
 
   async createQuestion(body: CreateQuestionBodyDto) {
