@@ -1,6 +1,6 @@
-import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Req, UseGuards } from '@nestjs/common';
 import { sendFailRes, sendSuccessRes } from 'src/common/generateResponse';
-import { JwtPassGuard } from 'src/auth/jwt.guard';
+import { JwtAuthGuard, JwtPassGuard } from 'src/auth/jwt.guard';
 import { Request } from 'express';
 import { QuestionService } from 'src/question/app/question.service';
 import { FindOptionsWhere } from 'typeorm';
@@ -13,6 +13,8 @@ export class ExamController {
     private readonly service: ExamService,
     private readonly questionService: QuestionService,
   ) {}
+
+  /** @deprecated */
   @Get('/')
   @UseGuards(JwtPassGuard)
   async getExams(@Req() { user }: Request) {
@@ -52,5 +54,18 @@ export class ExamController {
       },
     });
     return sendSuccessRes({ list: exams });
+  }
+
+  @Get('/:id/progress')
+  @UseGuards(JwtAuthGuard)
+  async getExamProgress(@Param('id') idStr: string, @Req() { user }: Request) {
+    if (!user) return sendFailRes('비정상적인 접근입니다.');
+
+    const id = Number(idStr);
+    const progress = await this.service.getExamProgress(id, {
+      userId: user.id,
+      canReadAll: user.canReadAll,
+    });
+    return sendSuccessRes({ progress });
   }
 }

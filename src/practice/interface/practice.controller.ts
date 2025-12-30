@@ -25,6 +25,7 @@ export class PracticeController {
   constructor(private readonly service: PracticeService) {}
 
   @Get('/')
+  @UseGuards(JwtAuthGuard)
   async getMyPractices(
     @Req() { user }: Request,
     @Query() query: GetMyPracticesQueryDto,
@@ -34,6 +35,13 @@ export class PracticeController {
 
     const { list, totalCount } = await this.service.getList(query, userId);
     return sendSuccessRes({ list, totalCount });
+  }
+
+  @Get('/:id/result')
+  async getResult(@Param('id') idStr: string) {
+    const id = Number(idStr);
+    const practice = await this.service.getResult(id);
+    return sendSuccessRes({ practice });
   }
 
   @Get('/:id/question')

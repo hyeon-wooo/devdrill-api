@@ -11,8 +11,9 @@ import {
   EPracticeSelectionCondition,
   EPracticeStatus,
 } from '../domain/practice.enum';
-import { FindOptionsWhere } from 'typeorm';
+import { FindOptionsWhere, Not } from 'typeorm';
 import { PracticeEntity } from '../infrastructure/practice/practice.entity';
+import { QuestionQuizResponseDto } from 'src/question/interface/question.dto';
 
 @Injectable()
 export class PracticeService {
@@ -21,6 +22,18 @@ export class PracticeService {
     private readonly setRepo: PracticeSetRepository,
     private readonly questionService: QuestionService,
   ) {}
+
+  async getInProgressPractice(userId: number) {
+    const practice = await this.repo.findOne(
+      {
+        userId: userId,
+        status: EPracticeStatus.IN_PROGRESS,
+      },
+      { exam: true },
+    );
+
+    return practice;
+  }
 
   async createPractice(userId: number, body: CreatePracticeBodyDto) {
     const progressPractice = await this.repo.findOne({
@@ -68,7 +81,7 @@ export class PracticeService {
       },
       relations: {
         question: {
-          metadata: true,
+          metadata: { image: true },
         },
       },
       order: {
@@ -77,17 +90,7 @@ export class PracticeService {
     });
 
     return questionSet.map(({ question }) => {
-      return {
-        id: question.id,
-        content: question.content,
-        choiceA: question.choiceA,
-        choiceB: question.choiceB,
-        choiceC: question.choiceC,
-        choiceD: question.choiceD,
-        choiceE: question.choiceE,
-        choiceF: question.choiceF,
-        metadata: question.metadata,
-      };
+      return new QuestionQuizResponseDto(question);
     });
   }
 
@@ -158,6 +161,8 @@ export class PracticeService {
   async getList(query: GetMyPracticesQueryDto, userId: number) {
     const condition: FindOptionsWhere<PracticeEntity> = { userId };
     if (query.examId) condition.examId = Number(query.examId);
+    if (query.exceptCancelled)
+      condition.status = Not(EPracticeStatus.CANCELLED);
 
     const practices = await this.repo.findMany({
       where: condition,
@@ -180,5 +185,16 @@ export class PracticeService {
     }
 
     return result;
+  }
+
+  async getResult(practiceId: number) {
+    const practice = await this.repo.findOne(
+      {
+        id: practiceId,
+      },
+      { exam: true },
+    );
+
+    return practice;
   }
 }

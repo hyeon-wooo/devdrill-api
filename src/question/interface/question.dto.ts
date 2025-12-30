@@ -27,6 +27,13 @@ export class QuestionMetadataFieldDto {
   codeLanguage: EQuestionCodeLanguage | null;
   questionId?: number;
   id?: number;
+  image?: {
+    id: number;
+    urlOrigin: string;
+    url512: string | null;
+    url256: string | null;
+    url128: string | null;
+  };
 }
 
 export class QuestionFieldDto {
@@ -83,4 +90,51 @@ export class QuestionListItemDto {
   questionNumber: number;
   hasMetadata: boolean;
   topic: string;
+}
+
+export class QuestionQuizResponseDto {
+  constructor(question: QuestionEntity) {
+    this.id = question.id;
+    this.questionNumber = question.questionNumber;
+    this.content = question.content;
+    this.choiceA = question.choiceA;
+    this.choiceB = question.choiceB;
+    this.choiceC = question.choiceC;
+    this.choiceD = question.choiceD;
+    this.choiceE = question.choiceE;
+    this.choiceF = question.choiceF;
+    this.isMultiple = question.answer.includes(',');
+    this.maxChoices = question.answer.split(', ').length;
+    this.metadata = question.metadata.map((meta) => {
+      return {
+        position: meta.position,
+        type: meta.type,
+        imageId: meta.imageId,
+        codeSource: meta.codeSource,
+        codeLanguage: meta.codeLanguage,
+        image: meta.image
+          ? {
+              id: meta.image.id,
+              urlOrigin: meta.image.urlOrigin,
+              url512: meta.image.url512,
+              url256: meta.image.url256,
+              url128: meta.image.url128,
+            }
+          : undefined,
+      };
+    });
+  }
+
+  id: number;
+  questionNumber: number;
+  content: string;
+  choiceA: string;
+  choiceB: string;
+  choiceC: string;
+  choiceD: string;
+  choiceE?: string | null;
+  choiceF?: string | null;
+  isMultiple?: boolean;
+  maxChoices?: number | null;
+  metadata?: QuestionMetadataFieldDto[];
 }

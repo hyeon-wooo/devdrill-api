@@ -14,4 +14,5 @@ export class SubmitPracticeBodyDto {
 
 export class GetMyPracticesQueryDto extends ListQueryDto {
   examId?: string;
+  exceptCancelled?: 'y' | 'n';
 }
