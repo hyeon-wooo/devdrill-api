@@ -41,8 +41,6 @@ export class ExamController {
       list.push({ exam, solvedCount });
     }
 
-    console.log('list', list);
-
     return sendSuccessRes({ list });
   }
 

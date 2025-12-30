@@ -18,6 +18,8 @@ export class LoginBodyDto {
   deviceOsVersion: string;
   deviceOs: EDeviceOS;
   appVersion: string;
+
+  isDev: boolean;
 }
 
 export class RegisterFcmBodyDto {

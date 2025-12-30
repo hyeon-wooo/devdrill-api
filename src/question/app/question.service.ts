@@ -15,6 +15,7 @@ import {
   UpdateQuestionBodyDto,
 } from '../interface/question.dto';
 import { QuestionMetadataService } from './question-metadata.service';
+import { EPracticeSelectionCondition } from 'src/practice/domain/practice.enum';
 
 @Injectable()
 export class QuestionService extends CRUDService<QuestionEntity> {
@@ -194,5 +195,57 @@ export class QuestionService extends CRUDService<QuestionEntity> {
     );
 
     return true;
+  }
+
+  async getIdsByExamId(examId: number) {
+    const ids = await this.findMany({
+      select: ['id'],
+      where: {
+        examId,
+      },
+    });
+    return ids.map((id) => id.id);
+  }
+
+  /** 문제 출제 */
+  async getShuffledQuestions(options: {
+    userId: number;
+    examId: number;
+    count: number;
+    selectionCondition: EPracticeSelectionCondition;
+  }) {
+    const allIds = await this.getIdsByExamId(options.examId);
+
+    const questionIds: number[] = [];
+
+    // 틀린문제 우선 무작위 출제
+    if (
+      options.selectionCondition === EPracticeSelectionCondition.WRONG_FIRST
+    ) {
+      const wrongQuestionIds =
+        await this.questionHistoryService.getWrongQuestionIds({
+          userId: options.userId,
+          questionIds: allIds,
+          count: Math.round(options.count / 2),
+        });
+      const restIds = allIds.filter((id) => !wrongQuestionIds.includes(id));
+      const restCount = options.count - wrongQuestionIds.length;
+      const randomIds = restIds
+        .sort(() => Math.random() - 0.5)
+        .slice(0, restCount);
+      questionIds.push(...wrongQuestionIds, ...randomIds);
+      questionIds.sort(() => Math.random() - 0.5);
+      return questionIds;
+    }
+
+    // 무작위 출제
+    if (options.selectionCondition === EPracticeSelectionCondition.NONE) {
+      questionIds.push(
+        ...allIds.sort(() => Math.random() - 0.5).slice(0, options.count),
+      );
+      return questionIds;
+    }
+
+    return questionIds;
   }
 }

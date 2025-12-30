@@ -25,7 +25,7 @@ export class AuthService {
     }
   }
 
-  generateToken(user: UserEntity) {
+  generateToken(user: UserEntity, isDev: boolean = false) {
     return {
       accessToken: this.jwtService.sign(
         {
@@ -35,7 +35,7 @@ export class AuthService {
           canSkipAd: user.canSkipAd,
           canReadAll: user.canReadAll,
         },
-        { expiresIn: '1m' },
+        { expiresIn: isDev ? '30d' : '1m' },
       ),
       refreshToken: this.jwtService.sign(
         {

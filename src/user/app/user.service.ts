@@ -41,7 +41,7 @@ export class UserService extends CRUDService<UserEntity> {
   }
 
   async login(body: LoginBodyDto, ip: string) {
-    const { email, password } = body;
+    const { email, password, isDev } = body;
     const user = await this.findOne({ email });
     if (!user) return -1;
 
@@ -53,16 +53,17 @@ export class UserService extends CRUDService<UserEntity> {
 
     await this.flushRefreshTokenByUserId(user.id);
 
-    const token = this.authService.generateToken(user);
+    const token = this.authService.generateToken(user, isDev);
 
-    await this.tokenHistoryService.create({
-      userId: user.id,
-      refreshToken: token.refreshToken,
-      issuedAt: new Date(),
-      expiredAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30일
-      issuedIp: ip,
-      issuedDeviceId: body.deviceId,
-    });
+    if (!isDev)
+      await this.tokenHistoryService.create({
+        userId: user.id,
+        refreshToken: token.refreshToken,
+        issuedAt: new Date(),
+        expiredAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30일
+        issuedIp: ip,
+        issuedDeviceId: body.deviceId,
+      });
 
     const { password: _, ...me } = user;
 
