@@ -14,6 +14,7 @@ import {
 import { FindOptionsWhere, Not } from 'typeorm';
 import { PracticeEntity } from '../infrastructure/practice/practice.entity';
 import { QuestionQuizResponseDto } from 'src/question/interface/question.dto';
+import { PracticeSetEntity } from '../infrastructure/practice-set/practice-set.entity';
 
 @Injectable()
 export class PracticeService {
@@ -74,11 +75,14 @@ export class PracticeService {
     return created[0];
   }
 
-  async getQuestions(practiceId: number) {
+  async getQuestions(practiceId: number, options?: { isWrong: boolean }) {
+    const condition: FindOptionsWhere<PracticeSetEntity> = {
+      practiceId,
+    };
+    if (options?.isWrong) condition.isCorrect = false;
+
     const questionSet = await this.setRepo.findMany({
-      where: {
-        practiceId,
-      },
+      where: condition,
       relations: {
         question: {
           metadata: { image: true },
@@ -91,6 +95,32 @@ export class PracticeService {
 
     return questionSet.map(({ question }) => {
       return new QuestionQuizResponseDto(question);
+    });
+  }
+
+  async getWrongQuestions(practiceId: number) {
+    const condition: FindOptionsWhere<PracticeSetEntity> = {
+      practiceId,
+      isCorrect: false,
+    };
+
+    const questionSet = await this.setRepo.findMany({
+      where: condition,
+      relations: {
+        question: {
+          metadata: { image: true },
+        },
+      },
+      order: {
+        sequence: 'ASC',
+      },
+    });
+
+    return questionSet.map((item) => {
+      return {
+        question: new QuestionQuizResponseDto(item.question),
+        myAnswer: item.choicedAnswer,
+      };
     });
   }
 

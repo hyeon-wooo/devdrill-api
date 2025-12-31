@@ -139,6 +139,21 @@ export class QuestionController {
     return sendSuccessRes({ question });
   }
 
+  @Get('/:id/explanation')
+  async getExplanation(@Param('id') idStr: string) {
+    const id = Number(idStr);
+    const question = await this.service.findOne({ id });
+    if (!question) return sendFailRes('접근할 수 없는 문제입니다.');
+
+    return sendSuccessRes({
+      answer: question.answer,
+      topic: question.topic,
+      explanation: question.explanation,
+      explanation2: question.explanation2,
+      explanation3: question.explanation3,
+    });
+  }
+
   @Post('/')
   async createQuestion(@Body() body: CreateQuestionBodyDto) {
     const created = await this.service.createQuestion(body);

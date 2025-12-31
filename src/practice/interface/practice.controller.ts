@@ -51,6 +51,20 @@ export class PracticeController {
     return sendSuccessRes({ list: questions });
   }
 
+  // 모의고사에서 틀린 문제 조회
+  @Get('/:id/question/wrong')
+  @UseGuards(JwtAuthGuard)
+  async getWrongQuestions(
+    @Param('id') idStr: string,
+    @Req() { user }: Request,
+  ) {
+    if (!user) return sendFailRes('비정상적인 접근입니다.');
+
+    const id = Number(idStr);
+    const questions = await this.service.getWrongQuestions(id);
+    return sendSuccessRes({ list: questions });
+  }
+
   @Post('/')
   @UseGuards(JwtAuthGuard)
   async createPractice(

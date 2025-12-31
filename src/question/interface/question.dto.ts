@@ -103,6 +103,7 @@ export class QuestionQuizResponseDto {
     this.choiceD = question.choiceD;
     this.choiceE = question.choiceE;
     this.choiceF = question.choiceF;
+    this.answer = question.answer;
     this.isMultiple = question.answer.includes(',');
     this.maxChoices = question.answer.split(', ').length;
     this.metadata = question.metadata.map((meta) => {
@@ -134,6 +135,7 @@ export class QuestionQuizResponseDto {
   choiceD: string;
   choiceE?: string | null;
   choiceF?: string | null;
+  answer: string;
   isMultiple?: boolean;
   maxChoices?: number | null;
   metadata?: QuestionMetadataFieldDto[];
