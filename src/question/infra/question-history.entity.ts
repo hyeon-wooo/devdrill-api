@@ -1,6 +1,6 @@
 import { DefaultEntity } from 'src/common/default.entity';
 import { Column, Entity, Index } from 'typeorm';
-import { EQuestionAction } from '../domain/question.enum';
+import { EQuestionAction, EQuestionQuizMode } from '../domain/question.enum';
 
 @Entity({ name: 'question_history', comment: '문제풀이 내역' })
 export class QuestionHistoryEntity extends DefaultEntity {
@@ -22,4 +22,11 @@ export class QuestionHistoryEntity extends DefaultEntity {
 
   @Column('boolean', { comment: '정답 여부', nullable: true })
   isCorrect: boolean | null;
+
+  @Column('enum', {
+    comment: '문제풀기 모드',
+    enum: EQuestionQuizMode,
+    default: EQuestionQuizMode.SHUFFLE,
+  })
+  quizMode: EQuestionQuizMode;
 }

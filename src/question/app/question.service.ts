@@ -9,9 +9,10 @@ import { FindOptionsWhere, In, IsNull, Repository } from 'typeorm';
 import { QuestionEntity } from '../infra/question.entity';
 import * as fs from 'fs';
 import { QuestionHistoryService } from './question-history.service';
-import { EQuestionAction } from '../domain/question.enum';
+import { EQuestionAction, EQuestionQuizMode } from '../domain/question.enum';
 import {
   CreateQuestionBodyDto,
+  QuestionQuizResponseDto,
   UpdateQuestionBodyDto,
 } from '../interface/question.dto';
 import { QuestionMetadataService } from './question-metadata.service';
@@ -42,6 +43,31 @@ export class QuestionService extends CRUDService<QuestionEntity> {
         image: true,
       },
     });
+  }
+
+  async createHistory(body: {
+    userId: number;
+    questionId: number;
+    action: EQuestionAction;
+    quizMode: EQuestionQuizMode;
+  }) {
+    return this.questionHistoryService.create(body);
+  }
+
+  async getCorrectMap(questionIds: number[], userId: number) {
+    const histories = await this.questionHistoryService.findMany({
+      where: { questionId: In(questionIds), userId },
+      order: { questionId: 'ASC' },
+    });
+
+    const correctMap: Record<number, boolean> = histories.reduce((acc, cur) => {
+      if (cur.action === EQuestionAction.SUBMIT && cur.isCorrect)
+        acc[cur.questionId] = true;
+
+      return acc;
+    }, {});
+
+    return correctMap;
   }
 
   async getRandomQuestion(
@@ -87,23 +113,15 @@ export class QuestionService extends CRUDService<QuestionEntity> {
       questionId: q.id,
     });
 
-    return {
-      id: q.id,
-      questionNumber: q.questionNumber,
-      content: q.content,
-      choiceA: q.choiceA,
-      choiceB: q.choiceB,
-      choiceC: q.choiceC,
-      choiceD: q.choiceD,
-      choiceE: q.choiceE,
-      choiceF: q.choiceF,
-      topic: q.topic,
-      isMultiple: q.answer.includes(','),
-      maxChoices: q.answer.split(',').length,
-    };
+    return new QuestionQuizResponseDto(q);
   }
 
-  async submitQuestion(userId: number, questionId: number, myAnswer: string) {
+  async submitQuestion(
+    userId: number,
+    questionId: number,
+    myAnswer: string,
+    quizMode: EQuestionQuizMode,
+  ) {
     const question = await this.findOne({ id: questionId });
     if (!question) throw new NotFoundException('문제를 찾을 수 없습니다.');
 
@@ -116,6 +134,7 @@ export class QuestionService extends CRUDService<QuestionEntity> {
       action: EQuestionAction.SUBMIT,
       choicedAnswer: sortedAnswer,
       isCorrect,
+      quizMode: quizMode ?? EQuestionQuizMode.SHUFFLE,
     });
 
     return {

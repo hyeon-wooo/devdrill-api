@@ -40,3 +40,9 @@ export enum EQuestionCodeLanguage {
   SHELL = 'shell',
   OTHER = 'other',
 }
+
+/** 문제풀기 모드 (순차적, 무작위) */
+export enum EQuestionQuizMode {
+  EXPLORE = 'explore',
+  SHUFFLE = 'shuffle',
+}

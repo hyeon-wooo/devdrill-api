@@ -38,10 +38,13 @@ export class PracticeController {
   }
 
   @Get('/:id/result')
-  async getResult(@Param('id') idStr: string) {
+  @UseGuards(JwtAuthGuard)
+  async getResult(@Param('id') idStr: string, @Req() { user }: Request) {
+    if (!user) return sendFailRes('비정상적인 접근입니다.');
+
     const id = Number(idStr);
     const practice = await this.service.getResult(id);
-    return sendSuccessRes({ practice });
+    return sendSuccessRes({ practice, needAd: !user.canSkipAd });
   }
 
   @Get('/:id/question')

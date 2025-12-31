@@ -13,8 +13,10 @@ import { QuestionService } from '../app/question.service';
 import { sendFailRes, sendSuccessRes } from 'src/common/generateResponse';
 import {
   CreateQuestionBodyDto,
+  QuestionExploreQueryDto,
   QuestionListItemDto,
   QuestionListQueryDto,
+  QuestionQuizResponseDto,
   RandomQuestionQueryDto,
   SubmitQuestionBodyDto,
   UpdateQuestionBodyDto,
@@ -26,6 +28,7 @@ import { QuestionHistoryService } from '../app/question-history.service';
 import { AdService } from 'src/ad/app/ad.service';
 import { FindManyOptions, FindOptionsWhere, Like } from 'typeorm';
 import { QuestionEntity } from '../infra/question.entity';
+import { EQuestionAction, EQuestionQuizMode } from '../domain/question.enum';
 
 @Controller('question')
 export class QuestionController {
@@ -123,6 +126,77 @@ export class QuestionController {
     return sendSuccessRes({ question, metadata, needAd });
   }
 
+  @Get('/explore')
+  @UseGuards(JwtAuthGuard)
+  async explore(
+    @Req() { user }: Request,
+    @Query() query: QuestionExploreQueryDto,
+  ) {
+    if (!user) return sendFailRes('비정상적인 접근입니다.');
+
+    const condition: FindOptionsWhere<QuestionEntity> = {
+      examId: query.examId,
+    };
+
+    // '모든문제읽기가능' 사용자가 아닌 경우 프리미엄 문제 제외
+    if (!user.canReadAll) condition.isPremium = false;
+
+    const questions = await this.service.findMany({
+      where: condition,
+      order: { questionNumber: 'ASC' },
+      skip: Number(query.from),
+      take: Number(query.limit),
+    });
+
+    const questionIds = questions.map((question) => question.id);
+
+    const correctMap = await this.service.getCorrectMap(questionIds, user.id);
+
+    const questionExploreItems = questions.map((q) => {
+      const isCorrect = correctMap[q.id] ?? false;
+      const { questionNumber, topic, id } = q;
+      return {
+        questionNumber,
+        topic,
+        id,
+        isCorrect,
+      };
+    });
+
+    return sendSuccessRes({ list: questionExploreItems });
+  }
+
+  @Get('/explore/:id')
+  @UseGuards(JwtAuthGuard)
+  async getExploreDetail(@Param('id') idStr: string, @Req() { user }: Request) {
+    if (!user) return sendFailRes('비정상적인 접근입니다.');
+
+    const id = Number(idStr);
+    const question = await this.service.findOne(
+      { id },
+      { metadata: { image: true } },
+    );
+    if (!question) return sendFailRes('접근할 수 없는 문제입니다.');
+
+    // 무료플랜 사용자만 광고 표시
+    const needAd = user.canSkipAd
+      ? false
+      : await this.adService.needShowAd(user.id);
+
+    this.service.createHistory({
+      userId: user.id,
+      questionId: id,
+      action: EQuestionAction.ENTER,
+      quizMode: EQuestionQuizMode.EXPLORE,
+    });
+
+    return sendSuccessRes({
+      question: new QuestionQuizResponseDto(question),
+      metadata: question.metadata,
+      needAd,
+    });
+  }
+
   @Get('/:id')
   async getDetail(@Param('id') idStr: string) {
     const id = Number(idStr);
@@ -170,7 +244,7 @@ export class QuestionController {
     const userId = user?.id ?? 0;
 
     const id = Number(idStr);
-    const { myAnswer } = body;
+    const { myAnswer, quizMode } = body;
     const {
       answer,
       topic,
@@ -178,7 +252,7 @@ export class QuestionController {
       explanation2,
       explanation3,
       isCorrect,
-    } = await this.service.submitQuestion(userId, id, myAnswer);
+    } = await this.service.submitQuestion(userId, id, myAnswer, quizMode);
     return sendSuccessRes({
       answer,
       topic,

@@ -3,6 +3,7 @@ import {
   EQuestionCodeLanguage,
   EQuestionMetadataPosition,
   EQuestionMetadataType,
+  EQuestionQuizMode,
 } from '../domain/question.enum';
 import { QuestionMetadataEntity } from '../infra/question-metadata.entity';
 import { CategoryEntity } from 'src/category/category.entity';
@@ -13,10 +14,13 @@ import { ExamEntity } from 'src/exam/exam.entity';
 export class RandomQuestionQueryDto {
   examId: number;
   ignoreAlreadySolved: 'y' | 'n';
+  quizMode: EQuestionQuizMode;
+  prevQuestionId?: number;
 }
 
 export class SubmitQuestionBodyDto {
   myAnswer: string;
+  quizMode: EQuestionQuizMode;
 }
 
 export class QuestionMetadataFieldDto {
@@ -139,4 +143,8 @@ export class QuestionQuizResponseDto {
   isMultiple?: boolean;
   maxChoices?: number | null;
   metadata?: QuestionMetadataFieldDto[];
+}
+
+export class QuestionExploreQueryDto extends ListQueryDto {
+  examId: number;
 }
