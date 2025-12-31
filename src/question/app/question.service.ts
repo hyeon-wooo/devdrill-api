@@ -84,6 +84,9 @@ export class QuestionService extends CRUDService<QuestionEntity> {
 
     let questions = await this.findMany({
       where: condition,
+      relations: {
+        metadata: { image: true },
+      },
     });
 
     if (ignoreAlreadySolved) {

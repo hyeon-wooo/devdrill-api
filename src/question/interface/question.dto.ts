@@ -110,24 +110,25 @@ export class QuestionQuizResponseDto {
     this.answer = question.answer;
     this.isMultiple = question.answer.includes(',');
     this.maxChoices = question.answer.split(', ').length;
-    this.metadata = question.metadata.map((meta) => {
-      return {
-        position: meta.position,
-        type: meta.type,
-        imageId: meta.imageId,
-        codeSource: meta.codeSource,
-        codeLanguage: meta.codeLanguage,
-        image: meta.image
-          ? {
-              id: meta.image.id,
-              urlOrigin: meta.image.urlOrigin,
-              url512: meta.image.url512,
-              url256: meta.image.url256,
-              url128: meta.image.url128,
-            }
-          : undefined,
-      };
-    });
+    this.metadata =
+      question.metadata?.map((meta) => {
+        return {
+          position: meta.position,
+          type: meta.type,
+          imageId: meta.imageId,
+          codeSource: meta.codeSource,
+          codeLanguage: meta.codeLanguage,
+          image: meta.image
+            ? {
+                id: meta.image.id,
+                urlOrigin: meta.image.urlOrigin,
+                url512: meta.image.url512,
+                url256: meta.image.url256,
+                url128: meta.image.url128,
+              }
+            : undefined,
+        };
+      }) ?? [];
   }
 
   id: number;
