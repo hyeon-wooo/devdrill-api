@@ -21,6 +21,11 @@ FROM gcr.io/distroless/nodejs22-debian12:nonroot AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
 ENV TZ=Asia/Seoul
+# OpenTelemetry
+ENV OTEL_EXPORTER_OTLP_ENDPOINT="http://otel-collector-app-collector.observability.svc.cluster.local:4317"
+ENV OTEL_TRACES_EXPORTER="otlp"
+ENV NODE_OPTIONS="--require @opentelemetry/auto-instrumentations-node/register"
+
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 EXPOSE 3000
