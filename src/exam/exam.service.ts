@@ -58,7 +58,9 @@ export class ExamService extends CRUDService<ExamEntity> {
     );
     const progress1 = (solvedQuestionCount / totalQuestionCount) * 100;
     const progress =
-      solvedQuestionCount >= totalQuestionCount ? 100 : Math.round(progress1);
+      progress1 < 99.5 || solvedQuestionCount < totalQuestionCount
+        ? Math.round(progress1)
+        : 100;
 
     return {
       totalQuestionCount,
