@@ -175,7 +175,7 @@ export class QuestionService extends CRUDService<QuestionEntity> {
     });
 
     const solvedHistories = await this.questionHistoryService.findMany({
-      select: ['id'],
+      select: ['id', 'questionId'],
       where: {
         userId,
         questionId: In(ids.map((id) => id.id)),
