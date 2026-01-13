@@ -184,7 +184,7 @@ export class QuestionService extends CRUDService<QuestionEntity> {
     });
 
     const distinctSolvedCount = new Set(
-      solvedHistories.map((history) => history.id),
+      solvedHistories.map((history) => history.questionId),
     ).size;
 
     return Math.min(distinctSolvedCount, ids.length);
