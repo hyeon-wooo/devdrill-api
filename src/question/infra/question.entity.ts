@@ -1,9 +1,10 @@
 import { DefaultEntity } from 'src/common/default.entity';
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
+import { Column, Entity, Index, ManyToOne, OneToMany } from 'typeorm';
 import { CategoryEntity } from 'src/category/category.entity';
 import { JoinColumn } from 'typeorm';
 import { QuestionMetadataEntity } from './question-metadata.entity';
-import { ExamEntity } from 'src/exam/exam.entity';
+import { ExamEntity } from 'src/exam/infra/exam.entity';
+import { ExamSubjectEntity } from 'src/exam/infra/subject.entity';
 
 @Entity({ name: 'question', comment: '문제' })
 export class QuestionEntity extends DefaultEntity {
@@ -60,9 +61,16 @@ export class QuestionEntity extends DefaultEntity {
   @Column('int', { comment: '시험 ID (exam.id)', nullable: true })
   examId: number | null;
 
+  @Column('int', { comment: '과목 ID (subject.id)', nullable: true })
+  subjectId: number | null;
+
   @ManyToOne(() => ExamEntity)
   @JoinColumn({ name: 'examId' })
   exam: ExamEntity;
+
+  @ManyToOne(() => ExamSubjectEntity)
+  @JoinColumn({ name: 'subjectId' })
+  subject: ExamSubjectEntity;
 
   @OneToMany(() => QuestionMetadataEntity, (metadata) => metadata.question)
   metadata: QuestionMetadataEntity[];

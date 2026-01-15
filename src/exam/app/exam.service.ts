@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CRUDService } from 'src/common/crud.service';
 import { FindOptionsWhere, Repository } from 'typeorm';
-import { ExamEntity } from './exam.entity';
+import { ExamEntity } from '../infra/exam.entity';
 import { QuestionService } from 'src/question/app/question.service';
 
 @Injectable()

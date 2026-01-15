@@ -4,7 +4,7 @@ import {
   EPracticeSelectionCondition,
   EPracticeStatus,
 } from '../../domain/practice.enum';
-import { ExamEntity } from 'src/exam/exam.entity';
+import { ExamEntity } from 'src/exam/infra/exam.entity';
 
 @Entity({
   name: 'practice',

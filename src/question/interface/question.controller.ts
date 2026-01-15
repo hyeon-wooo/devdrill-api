@@ -53,6 +53,9 @@ export class QuestionController {
     if (query.examId) {
       if (query.examId) condition.examId = Number(query.examId);
     }
+    if (query.subjectId) {
+      if (query.subjectId) condition.subjectId = Number(query.subjectId);
+    }
 
     if (query.searchKeyword) {
       switch (query.searchField) {

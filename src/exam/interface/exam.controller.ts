@@ -1,17 +1,19 @@
-import { Controller, Get, Param, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
 import { sendFailRes, sendSuccessRes } from 'src/common/generateResponse';
 import { JwtAuthGuard, JwtPassGuard } from 'src/auth/jwt.guard';
 import { Request } from 'express';
 import { QuestionService } from 'src/question/app/question.service';
 import { FindOptionsWhere } from 'typeorm';
-import { ExamService } from './exam.service';
-import { ExamEntity } from './exam.entity';
+import { ExamService } from '../app/exam.service';
+import { ExamEntity } from '../infra/exam.entity';
+import { ExamSubjectService } from '../app/subject.service';
 
 @Controller('exam')
 export class ExamController {
   constructor(
     private readonly service: ExamService,
     private readonly questionService: QuestionService,
+    private readonly subjectService: ExamSubjectService,
   ) {}
 
   /** @deprecated */
@@ -67,5 +69,17 @@ export class ExamController {
       canReadAll: user.canReadAll,
     });
     return sendSuccessRes({ progress });
+  }
+
+  @Get('/:id/subject')
+  async getExamSubject(@Param('id') idStr: string) {
+    const id = Number(idStr);
+    const subjects = await this.subjectService.findMany({
+      where: { examId: id },
+      order: {
+        sequence: 'ASC',
+      },
+    });
+    return sendSuccessRes({ list: subjects });
   }
 }

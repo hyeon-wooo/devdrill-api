@@ -9,7 +9,7 @@ import { QuestionMetadataEntity } from '../infra/question-metadata.entity';
 import { CategoryEntity } from 'src/category/category.entity';
 import { QuestionEntity } from '../infra/question.entity';
 import { IntersectionType } from '@nestjs/mapped-types';
-import { ExamEntity } from 'src/exam/exam.entity';
+import { ExamEntity } from 'src/exam/infra/exam.entity';
 
 export class RandomQuestionQueryDto {
   examId: number;
@@ -55,7 +55,8 @@ export class QuestionFieldDto {
   explanation3: string | null;
   metadata: QuestionMetadataFieldDto[];
   isPremium: boolean;
-  categoryId: number;
+  examId: number;
+  subjectId: number | null;
   questionNumber: number;
 }
 export class QuestionDto extends IntersectionType(
@@ -69,6 +70,7 @@ export class UpdateQuestionBodyDto extends CreateQuestionBodyDto {}
 export class QuestionListQueryDto extends ListQueryDto {
   categoryId?: string;
   examId?: string;
+  subjectId?: string;
 }
 
 export class QuestionListItemDto {
