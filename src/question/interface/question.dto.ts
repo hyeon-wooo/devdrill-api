@@ -68,7 +68,6 @@ export class CreateQuestionBodyDto extends QuestionFieldDto {}
 export class UpdateQuestionBodyDto extends CreateQuestionBodyDto {}
 
 export class QuestionListQueryDto extends ListQueryDto {
-  categoryId?: string;
   examId?: string;
   subjectId?: string;
 }
@@ -78,8 +77,6 @@ export class QuestionListItemDto {
     this.id = question.id;
     this.createdAt = question.createdAt;
     this.isPremium = question.isPremium;
-    this.categoryId = question.categoryId;
-    this.category = question.category;
     this.examId = question.examId;
     this.exam = question.exam;
     this.questionNumber = question.questionNumber;
@@ -89,8 +86,6 @@ export class QuestionListItemDto {
   id: number;
   createdAt: Date;
   isPremium: boolean;
-  categoryId: number;
-  category: CategoryEntity;
   examId: number | null;
   exam: ExamEntity;
   questionNumber: number;

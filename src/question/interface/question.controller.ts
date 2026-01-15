@@ -47,9 +47,6 @@ export class QuestionController {
   @Get('/')
   async getList(@Query() query: QuestionListQueryDto) {
     const condition: FindOptionsWhere<QuestionEntity> = {};
-    if (query.categoryId) {
-      if (query.categoryId) condition.categoryId = Number(query.categoryId);
-    }
     if (query.examId) {
       if (query.examId) condition.examId = Number(query.examId);
     }
@@ -77,7 +74,6 @@ export class QuestionController {
         createdAt: 'DESC',
       },
       relations: {
-        category: true,
         exam: true,
       },
     };
@@ -206,7 +202,6 @@ export class QuestionController {
     const question = await this.service.findOne(
       { id },
       {
-        category: true,
         exam: true,
         metadata: { image: true },
       },
@@ -264,18 +259,6 @@ export class QuestionController {
       explanation3,
       isCorrect,
     });
-  }
-
-  @Post('/history/reset')
-  @UseGuards(JwtAuthGuard)
-  async resetHistory(
-    @Body() body: { examId: number },
-    @Req() { user }: Request,
-  ) {
-    const { examId } = body;
-    const userId = user?.id ?? 0;
-    await this.service.resetHistory(userId, examId);
-    return sendSuccessRes(null);
   }
 
   @Put('/:id')

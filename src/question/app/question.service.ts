@@ -150,22 +150,6 @@ export class QuestionService extends CRUDService<QuestionEntity> {
     };
   }
 
-  async resetHistory(userId: number, categoryId: number) {
-    const ids = await this.findMany({
-      select: ['id'],
-      where: {
-        categoryId,
-      },
-    });
-
-    await this.questionHistoryService.deleteWithWhere({
-      userId,
-      questionId: In(ids.map((id) => id.id)),
-    });
-
-    return true;
-  }
-
   async getSolvedCount(userId: number, examId: number) {
     const ids = await this.findMany({
       select: ['id'],

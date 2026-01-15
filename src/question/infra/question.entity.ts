@@ -51,13 +51,6 @@ export class QuestionEntity extends DefaultEntity {
   @Column('boolean', { default: false, comment: '메타데이터 존재 여부' })
   hasMetadata: boolean;
 
-  @Column('int', { comment: '카테고리 ID (category.id)' })
-  categoryId: number;
-
-  @ManyToOne(() => CategoryEntity)
-  @JoinColumn({ name: 'categoryId' })
-  category: CategoryEntity;
-
   @Column('int', { comment: '시험 ID (exam.id)', nullable: true })
   examId: number | null;
 
