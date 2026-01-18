@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -29,6 +30,7 @@ import { AdService } from 'src/ad/app/ad.service';
 import { FindManyOptions, FindOptionsWhere, Like } from 'typeorm';
 import { QuestionEntity } from '../infra/question.entity';
 import { EQuestionAction, EQuestionQuizMode } from '../domain/question.enum';
+import { QuestionBookmarkService } from '../app/question-bookmark.service';
 
 @Controller('question')
 export class QuestionController {
@@ -36,6 +38,7 @@ export class QuestionController {
     private readonly service: QuestionService,
     private readonly questionHistoryService: QuestionHistoryService,
     private readonly adService: AdService,
+    private readonly bookmarkService: QuestionBookmarkService,
   ) {}
 
   @Post('/bulk')
@@ -196,6 +199,24 @@ export class QuestionController {
     });
   }
 
+  @Get('/bookmark')
+  async getBookmark(@Req() {user}: Request, @Query() query: {examId?: string}) {
+    if (!user) return sendFailRes('비정상적인 접근입니다.');
+
+    const examId = query.examId ? Number(query.examId) : undefined;
+
+    const bookmarks = await this.bookmarkService.findMany({
+      where: { userId: user.id, examId },
+      relations: {
+        question: true
+      },
+      order: {
+        createdAt: 'DESC'
+      }
+    });
+    return sendSuccessRes({ list: bookmarks });
+  }
+
   @Get('/:id')
   async getDetail(@Param('id') idStr: string) {
     const id = Number(idStr);
@@ -261,6 +282,21 @@ export class QuestionController {
     });
   }
 
+  @Post('/:id/bookmark')
+  @UseGuards(JwtAuthGuard)
+  async createBookmark(@Param('id') idStr: string, @Req() { user }: Request) {
+    if (!user) return sendFailRes('비정상적인 접근입니다.');
+    const question = await this.service.findOne({ id: Number(idStr) });
+    if (!question || !question.examId) return sendFailRes('접근할 수 없는 문제입니다.');
+
+    await this.bookmarkService.create({
+      userId: user.id,
+      questionId: question.id,
+      examId: question.examId,
+    });
+    return sendSuccessRes(true);
+  }
+
   @Put('/:id')
   async updateQuestion(
     @Param('id') idStr: string,
@@ -268,6 +304,18 @@ export class QuestionController {
   ) {
     const id = Number(idStr);
     await this.service.updateQuestion(id, body);
+    return sendSuccessRes(true);
+  }
+
+  @Delete('/:id/bookmark')
+  @UseGuards(JwtAuthGuard)
+  async deleteBookmark(@Param('id') idStr: string, @Req() { user }: Request) {
+    if (!user) return sendFailRes('비정상적인 접근입니다.');
+
+    const id = Number(idStr);
+
+    await this.bookmarkService.deleteWithWhere({ questionId: id, userId: user.id });
+    
     return sendSuccessRes(true);
   }
 }

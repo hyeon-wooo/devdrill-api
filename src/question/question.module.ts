@@ -8,6 +8,8 @@ import { QuestionHistoryService } from './app/question-history.service';
 import { AdModule } from 'src/ad/ad.module';
 import { QuestionMetadataEntity } from './infra/question-metadata.entity';
 import { QuestionMetadataService } from './app/question-metadata.service';
+import { QuestionBookmarkEntity } from './infra/question-bookmark.entity';
+import { QuestionBookmarkService } from './app/question-bookmark.service';
 
 @Module({
   imports: [
@@ -15,11 +17,12 @@ import { QuestionMetadataService } from './app/question-metadata.service';
       QuestionEntity,
       QuestionHistoryEntity,
       QuestionMetadataEntity,
+      QuestionBookmarkEntity,
     ]),
     AdModule,
   ],
   controllers: [QuestionController],
-  providers: [QuestionService, QuestionHistoryService, QuestionMetadataService],
+  providers: [QuestionService, QuestionHistoryService, QuestionMetadataService, QuestionBookmarkService],
   exports: [QuestionService],
 })
 export class QuestionModule {}
