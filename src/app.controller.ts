@@ -9,8 +9,10 @@ import { ClientIp } from './common/client-ip.decorator';
 import { ConfigService } from '@nestjs/config';
 import { ExamService } from './exam/app/exam.service';
 import { PracticeService } from './practice/app/practice.service';
-import { JwtAuthGuard } from './auth/jwt.guard';
+import { JwtAuthGuard, JwtPassGuard } from './auth/jwt.guard';
 import { Request } from 'express';
+import { LogService } from './log/app/log.service';
+import { SessionId } from './log/app/session-id.decorator';
 
 @Controller()
 export class AppController {
@@ -21,6 +23,7 @@ export class AppController {
     private readonly configService: ConfigService,
     private readonly examService: ExamService,
     private readonly practiceService: PracticeService,
+    private readonly logService: LogService,
   ) {}
 
   @Get()
@@ -29,6 +32,7 @@ export class AppController {
   }
 
   @Post('/launch')
+  @UseGuards(JwtPassGuard)
   async launch(
     @Body()
     body: {
@@ -40,7 +44,35 @@ export class AppController {
       appVersion: string;
     },
     @ClientIp() ip: string,
+    @SessionId() sessionId: string,
   ) {
+
+    if (!sessionId) return sendFailRes('세션 ID가 없습니다.');
+
+    const launchLogPayload: {
+      sessionId: string;
+      launchAt: Date;
+      deviceId: string;
+      deviceModel: string;
+      deviceOsVersion: string;
+      deviceOs: EDeviceOS;
+      appVersion: string;
+      ip: string;
+      userId: number | null;
+      initialUserId: number | null;
+    } = {
+      sessionId,
+      launchAt: new Date(),
+      deviceId: body.deviceId,
+      deviceModel: body.deviceModel,
+      deviceOsVersion: body.deviceOsVersion,
+      deviceOs: body.deviceOs,
+      appVersion: body.appVersion,
+      ip,
+      userId: null,
+      initialUserId: null
+    }
+
     const res: {
       accessToken?: string;
       refreshToken?: string;
@@ -69,8 +101,15 @@ export class AppController {
         res.accessToken = result.accessToken;
         res.refreshToken = result.refreshToken;
         res.me = result.me as UserEntity;
+        launchLogPayload.userId = result.me.id;
+        launchLogPayload.initialUserId = result.me.id;
+
+        // 마지막 접속 일시 업데이트
+        this.userService.update({ id: result.me.id }, { lastAccessAt: new Date() });
       }
     }
+
+    this.logService.createLaunchLog(launchLogPayload);
 
     // TODO: 버전 검사
 

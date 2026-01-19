@@ -18,8 +18,8 @@ export class UserEntity extends DefaultEntity {
   @Column('varchar', { nullable: true, comment: 'FCM 토큰' })
   fcm: string | null;
 
-  @Column('datetime', { nullable: true, comment: '마지막 로그인 일시' })
-  lastLoginAt: Date | null;
+  @Column('datetime', { nullable: true, comment: '마지막 접속 일시', default: null })
+  lastAccessAt: Date | null;
 
   @Column('boolean', { default: false, comment: '광고 건너뛰기 가능 여부' })
   canSkipAd: boolean;

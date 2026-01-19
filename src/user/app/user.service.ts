@@ -12,6 +12,7 @@ import { LoginBodyDto, SignupBodyDto } from '../interface/user.dto';
 import { AuthService } from 'src/auth/auth.service';
 import { ERole } from 'src/auth/role/role.enum';
 import { TokenHistoryService } from './token-history.service';
+import { LogService } from 'src/log/app/log.service';
 
 @Injectable()
 export class UserService extends CRUDService<UserEntity> {
@@ -19,6 +20,7 @@ export class UserService extends CRUDService<UserEntity> {
     @InjectRepository(UserEntity) repo: Repository<UserEntity>,
     private readonly authService: AuthService,
     private readonly tokenHistoryService: TokenHistoryService,
+    private readonly logService: LogService,
   ) {
     super(repo);
   }
@@ -40,7 +42,7 @@ export class UserService extends CRUDService<UserEntity> {
     return createdUser;
   }
 
-  async login(body: LoginBodyDto, ip: string) {
+  async login(body: LoginBodyDto, ip: string, sessionId: string) {
     const { email, password, isDev } = body;
     const user = await this.findOne({ email });
     if (!user) return -1;
@@ -66,6 +68,9 @@ export class UserService extends CRUDService<UserEntity> {
       });
 
     const { password: _, ...me } = user;
+
+    this.logService.saveUserIdToLaunchLog(sessionId, user.id);
+    this.update({ id: user.id }, { lastAccessAt: new Date() });
 
     return {
       ...token,

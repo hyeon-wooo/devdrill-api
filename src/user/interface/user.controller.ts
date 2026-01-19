@@ -7,12 +7,14 @@ import { Request } from 'express';
 import { FcmHistoryService } from '../app/fcm-history.service';
 import { ClientIp } from 'src/common/client-ip.decorator';
 import { Not } from 'typeorm';
+import { LogService } from 'src/log/app/log.service';
+import { SessionId } from 'src/log/app/session-id.decorator';
 
 @Controller('user')
 export class UserController {
   constructor(
     private readonly service: UserService,
-    private readonly fcmHistoryService: FcmHistoryService,
+    private readonly fcmHistoryService: FcmHistoryService
   ) {}
 
   @Post('/signup')
@@ -25,8 +27,8 @@ export class UserController {
   }
 
   @Post('/login')
-  async login(@Body() body: LoginBodyDto, @ClientIp() ip: string) {
-    const result = await this.service.login(body, ip);
+  async login(@Body() body: LoginBodyDto, @ClientIp() ip: string, @SessionId() sessionId: string) {
+    const result = await this.service.login(body, ip, sessionId);
     if (result === -1) return sendFailRes('일치하는 계정 정보가 없습니다.');
 
     return sendSuccessRes(result);
