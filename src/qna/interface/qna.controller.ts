@@ -34,6 +34,7 @@ export class QnaController {
           take: limit,
           select: query.withAnswer !== 'y' ? { answer: false } : undefined,
           relations: { user: true },
+          order: { createdAt: 'DESC' },
         };
         const qnas = await this.service.findMany(options);
     
@@ -57,7 +58,7 @@ export class QnaController {
           where: { userId: user.id },
           order: { createdAt: 'DESC' },
         });
-        return sendSuccessRes({ qnas });
+        return sendSuccessRes({ list: qnas });
       }
     
       @Get('/:id')

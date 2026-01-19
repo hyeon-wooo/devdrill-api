@@ -87,8 +87,11 @@ export class FileController {
       relativePath,
     });
 
+    const found = await this.service.findOne({ id: saved.id });
+
     return sendSuccessRes({
       id: saved.id,
+      url: found?.urlOrigin,
     });
   }
 }

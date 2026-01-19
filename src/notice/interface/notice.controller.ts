@@ -36,7 +36,7 @@ export class NoticeController {
         if (query.needTotalCount === 'y')
           totalCount = await this.service.count(condition);
 
-        return sendSuccessRes({ notices, totalCount });
+        return sendSuccessRes({ list: notices, totalCount });
     }
 
     @Get('/:id')
