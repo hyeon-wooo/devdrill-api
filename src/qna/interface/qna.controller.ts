@@ -78,6 +78,51 @@ export class QnaController {
       async create(@Body() body: QnaCreateBodyDto, @Req() { user }: Request) {
         if (!user) return sendFailRes('비정상적인 접근입니다.');
         const created = await this.service.create({ ...body, userId: user.id });
+
+        const payload = {
+          "blocks": [
+            {
+              "type": "header",
+              "text": {
+                "type": "plain_text",
+                "text": "📌 새로운 문의가 등록되었습니다",
+                "emoji": true
+              }
+            },
+            {
+              "type": "section",
+              "fields": [
+                {
+                  "type": "mrkdwn",
+                  "text": `*문의 제목:*\n${body.title}`
+                },
+                {
+                  "type": "mrkdwn",
+                  "text": `*등록 일시:*\n${new Date().toLocaleString()}`
+                }
+              ]
+            },
+            {
+              "type": "divider"
+            },
+            {
+              "type": "context",
+              "elements": [
+                {
+                  "type": "mrkdwn",
+                  "text": "관리자 페이지에서 상세 내용을 확인하세요."
+                }
+              ]
+            }
+          ]
+        };
+        fetch('https://hooks.slack.com/services/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', {
+          method: 'POST',
+          body: JSON.stringify(payload),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
     
         return sendSuccessRes({ id: created[0].id });
       }
