@@ -18,6 +18,7 @@ import { BatchModule } from './batch/batch.module';
 import { ExamModule } from './exam/exam.module';
 import { PracticeModule } from './practice/practice.module';
 import { QnaModule } from './qna/qna.module';
+import { NoticeModule } from './notice/notice.module';
 
 dotenv.config();
 
@@ -44,6 +45,7 @@ dotenv.config();
     ExamModule,
     PracticeModule,
     QnaModule,
+    NoticeModule,
   ],
   controllers: [AppController],
   providers: [AppService],
