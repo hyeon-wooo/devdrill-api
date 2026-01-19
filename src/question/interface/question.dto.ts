@@ -145,4 +145,5 @@ export class QuestionQuizResponseDto {
 
 export class QuestionExploreQueryDto extends ListQueryDto {
   examId: number;
+  onlyBookmarked?: 'y' | 'n';
 }

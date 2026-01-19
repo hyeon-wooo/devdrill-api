@@ -27,7 +27,7 @@ import { Request } from 'express';
 import { IJwtPayload } from 'src/auth/auth.interface';
 import { QuestionHistoryService } from '../app/question-history.service';
 import { AdService } from 'src/ad/app/ad.service';
-import { FindManyOptions, FindOptionsWhere, Like } from 'typeorm';
+import { FindManyOptions, FindOptionsWhere, In, Like } from 'typeorm';
 import { QuestionEntity } from '../infra/question.entity';
 import { EQuestionAction, EQuestionQuizMode } from '../domain/question.enum';
 import { QuestionBookmarkService } from '../app/question-bookmark.service';
@@ -140,6 +140,16 @@ export class QuestionController {
       examId: query.examId,
     };
 
+    if (query.onlyBookmarked === 'y') {
+      const bookmarks = await this.bookmarkService.findMany({
+        where: { userId: user.id, examId: query.examId },
+        relations: { question: true },
+        order: { createdAt: 'DESC' },
+      });
+      const bookmarkedQuestionIds = bookmarks.map(b => b.questionId)
+      condition.id = In(bookmarkedQuestionIds)
+    }
+
     // '모든문제읽기가능' 사용자가 아닌 경우 프리미엄 문제 제외
     if (!user.canReadAll) condition.isPremium = false;
 
@@ -153,15 +163,18 @@ export class QuestionController {
     const questionIds = questions.map((question) => question.id);
 
     const correctMap = await this.service.getCorrectMap(questionIds, user.id);
+    const bookmarkMap = await this.bookmarkService.getBookmarkMap(questionIds, user.id);
 
     const questionExploreItems = questions.map((q) => {
       const isCorrect = correctMap[q.id] ?? false;
+      const isBookmarked = bookmarkMap[q.id] ?? false;
       const { questionNumber, topic, id } = q;
       return {
         questionNumber,
         topic,
         id,
         isCorrect,
+        isBookmarked,
       };
     });
 
@@ -197,24 +210,6 @@ export class QuestionController {
       metadata: question.metadata,
       needAd,
     });
-  }
-
-  @Get('/bookmark')
-  async getBookmark(@Req() {user}: Request, @Query() query: {examId?: string}) {
-    if (!user) return sendFailRes('비정상적인 접근입니다.');
-
-    const examId = query.examId ? Number(query.examId) : undefined;
-
-    const bookmarks = await this.bookmarkService.findMany({
-      where: { userId: user.id, examId },
-      relations: {
-        question: true
-      },
-      order: {
-        createdAt: 'DESC'
-      }
-    });
-    return sendSuccessRes({ list: bookmarks });
   }
 
   @Get('/:id')
@@ -288,6 +283,9 @@ export class QuestionController {
     if (!user) return sendFailRes('비정상적인 접근입니다.');
     const question = await this.service.findOne({ id: Number(idStr) });
     if (!question || !question.examId) return sendFailRes('접근할 수 없는 문제입니다.');
+
+    const already = await this.bookmarkService.findOne({ questionId: question.id, userId: user.id });
+    if (already) return sendSuccessRes(true);
 
     await this.bookmarkService.create({
       userId: user.id,
