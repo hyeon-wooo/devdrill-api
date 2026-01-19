@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { PracticeSetRepository } from '../infrastructure/practice-set/practice-set.repository';
-import { PracticeRepository } from '../infrastructure/practice/practice.repository';
+import { PracticeSetRepository } from '../infra/practice-set/practice-set.repository';
+import { PracticeRepository } from '../infra/practice/practice.repository';
 import { QuestionService } from 'src/question/app/question.service';
 import {
   CreatePracticeBodyDto,
@@ -12,9 +12,9 @@ import {
   EPracticeStatus,
 } from '../domain/practice.enum';
 import { FindOptionsWhere, Not } from 'typeorm';
-import { PracticeEntity } from '../infrastructure/practice/practice.entity';
+import { PracticeEntity } from '../infra/practice/practice.entity';
 import { QuestionQuizResponseDto } from 'src/question/interface/question.dto';
-import { PracticeSetEntity } from '../infrastructure/practice-set/practice-set.entity';
+import { PracticeSetEntity } from '../infra/practice-set/practice-set.entity';
 
 @Injectable()
 export class PracticeService {

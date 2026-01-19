@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { PracticeController } from './interface/practice.controller';
-import { PracticeService } from './application/practice.service';
+import { PracticeService } from './app/practice.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { QuestionModule } from 'src/question/question.module';
-import { PracticeEntity } from './infrastructure/practice/practice.entity';
-import { PracticeSetEntity } from './infrastructure/practice-set/practice-set.entity';
-import { PracticeRepository } from './infrastructure/practice/practice.repository';
-import { PracticeSetRepository } from './infrastructure/practice-set/practice-set.repository';
+import { PracticeEntity } from './infra/practice/practice.entity';
+import { PracticeSetEntity } from './infra/practice-set/practice-set.entity';
+import { PracticeRepository } from './infra/practice/practice.repository';
+import { PracticeSetRepository } from './infra/practice-set/practice-set.repository';
 
 @Module({
   imports: [

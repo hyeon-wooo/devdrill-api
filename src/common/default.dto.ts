@@ -13,5 +13,5 @@ export class ListQueryDto {
   searchKeyword?: string;
   searchField?: string;
 
-  needTotalCount?: boolean;
+  needTotalCount?: 'y' | 'n';
 }

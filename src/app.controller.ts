@@ -8,7 +8,7 @@ import { EDeviceOS } from './user/interface/user.dto';
 import { ClientIp } from './common/client-ip.decorator';
 import { ConfigService } from '@nestjs/config';
 import { ExamService } from './exam/app/exam.service';
-import { PracticeService } from './practice/application/practice.service';
+import { PracticeService } from './practice/app/practice.service';
 import { JwtAuthGuard } from './auth/jwt.guard';
 import { Request } from 'express';
 

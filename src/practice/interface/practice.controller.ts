@@ -8,7 +8,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { PracticeService } from '../application/practice.service';
+import { PracticeService } from '../app/practice.service';
 import {
   CreatePracticeBodyDto,
   GetMyPracticesQueryDto,
@@ -18,7 +18,7 @@ import { sendFailRes, sendSuccessRes } from 'src/common/generateResponse';
 import { JwtAuthGuard } from 'src/auth/jwt.guard';
 import { Request } from 'express';
 import { FindOptionsWhere } from 'typeorm';
-import { PracticeEntity } from '../infrastructure/practice/practice.entity';
+import { PracticeEntity } from '../infra/practice/practice.entity';
 
 @Controller('practice')
 export class PracticeController {
