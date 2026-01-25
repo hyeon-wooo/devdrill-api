@@ -21,6 +21,8 @@ import { QnaModule } from './qna/qna.module';
 import { NoticeModule } from './notice/notice.module';
 import { LogModule } from './log/log.module';
 import { LoggerModule } from 'nestjs-pino';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { UserContextInterceptor } from './common/user-context.interceptor';
 
 dotenv.config();
 
@@ -47,22 +49,6 @@ dotenv.config();
         customSuccessMessage: (req, res) => {
           return `${res.statusCode} ${req.method} ${req.url} (${req.headers['x-session-id'] || 'no-session'})`;
         },
-        hooks: {
-          logMethod(inputArgs, method) {
-            const msg = inputArgs[0];
-
-            // nestjs의 라우팅 로그 스킵
-            if (
-              typeof msg === 'string' &&
-              (msg.includes('Mapped {') ||
-                msg.includes('dependencies initialized') ||
-                msg.includes('Controller {'))
-            )
-              return;
-
-            method.apply(this, inputArgs);
-          },
-        },
       },
     }),
     BatchModule,
@@ -81,6 +67,9 @@ dotenv.config();
     LogModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    { provide: APP_INTERCEPTOR, useClass: UserContextInterceptor },
+  ],
 })
 export class AppModule {}
