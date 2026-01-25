@@ -23,8 +23,11 @@ ENV NODE_ENV=production
 ENV TZ=Asia/Seoul
 # OpenTelemetry
 ENV OTEL_EXPORTER_OTLP_ENDPOINT="http://otel-collector-app-collector.observability.svc.cluster.local:4317"
+ENV OTEL_SERVICE_NAME="devdrill-api"
 ENV OTEL_TRACES_EXPORTER="otlp"
-ENV OTEL_LOGS_EXPORTER_EXPORTER="otlp"
+ENV OTEL_LOGS_EXPORTER="otlp"
+ENV OTEL_METRICS_EXPORTER="otlp"
+ENV OTEL_LOG_LEVEL="debug"
 # Pino 로그에 traceId를 심기 위한 설정
 ENV OTEL_INSTRUMENTATION_PINO_LOG_KEYS="traceId,spanId,traceFlags"
 ENV NODE_OPTIONS="--require @opentelemetry/auto-instrumentations-node/register"

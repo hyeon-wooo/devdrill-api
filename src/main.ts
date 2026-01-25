@@ -13,6 +13,9 @@ async function bootstrap() {
     exposedHeaders: ['Authorization'],
   });
 
+  console.log('###### ', process.env.OTEL_SERVICE_NAME);
+  console.log('###### ', process.env.NODE_OPTIONS);
+
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
