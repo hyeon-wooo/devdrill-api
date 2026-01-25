@@ -20,6 +20,7 @@ import { PracticeModule } from './practice/practice.module';
 import { QnaModule } from './qna/qna.module';
 import { NoticeModule } from './notice/notice.module';
 import { LogModule } from './log/log.module';
+import { LoggerModule } from 'nestjs-pino';
 
 dotenv.config();
 
@@ -33,6 +34,17 @@ dotenv.config();
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useClass: DBConfigService,
+    }),
+    LoggerModule.forRoot({
+      pinoHttp: {
+        transport:
+          process.env.NODE_ENV !== 'production'
+            ? {
+                target: 'pino-pretty',
+                options: { colorize: true, singleLine: false },
+              }
+            : undefined,
+      },
     }),
     BatchModule,
     UserModule,
