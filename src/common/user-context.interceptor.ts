@@ -19,10 +19,12 @@ export class UserContextInterceptor implements NestInterceptor {
     const userId = user?.id ?? 'guest';
     const sessionId = request.headers['x-session-id'] ?? 'no-session';
 
-    request['log']?.assign({
-      user_id: userId,
-      session_id: sessionId,
-    });
+    // 로그에 속성 추가
+    if (request.log)
+      request.log.child({
+        user_id: userId,
+        session_id: sessionId,
+      });
 
     const currentSpan = trace.getActiveSpan();
     if (currentSpan) {
