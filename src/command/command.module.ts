@@ -1,0 +1,40 @@
+import { Module } from '@nestjs/common';
+import { CommandController } from './interface/command.controller';
+import { CommandService } from './app/command.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { CommandEntity } from './infra/entity/command.entity';
+import { CommandCategoryEntity } from './infra/entity/command-category.entity';
+import { CommandLikeEntity } from './infra/entity/command-like.entity';
+import { CommandMasteryEntity } from './infra/entity/command-mastery.entity';
+import { CommandBookmarkEntity } from './infra/entity/command-bookmark.entity';
+import { CommandRepository } from './infra/repository/command.repository';
+import { CommandCategoryRepository } from './infra/repository/command-category.repository';
+import { CommandLikeRepository } from './infra/repository/command-like.repository';
+import { CommandMasteryRepository } from './infra/repository/cmmand-mastery.repository';
+import { CommandBookmarkRepository } from './infra/repository/command-bookmark.repository';
+import { CommandCategoryController } from './interface/command-category.controller';
+import { CommandCategoryService } from './app/command-category.service';
+
+@Module({
+  imports: [
+    TypeOrmModule.forFeature([
+      CommandEntity,
+      CommandCategoryEntity,
+      CommandLikeEntity,
+      CommandMasteryEntity,
+      CommandBookmarkEntity,
+    ]),
+  ],
+  controllers: [CommandController, CommandCategoryController],
+  providers: [
+    CommandRepository,
+    CommandCategoryRepository,
+    CommandLikeRepository,
+    CommandMasteryRepository,
+    CommandBookmarkRepository,
+
+    CommandService,
+    CommandCategoryService,
+  ],
+})
+export class CommandModule {}
