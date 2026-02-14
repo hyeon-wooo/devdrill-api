@@ -4,7 +4,7 @@ import { CommandSubEntity } from './command-sub.entity';
 
 @Entity({ name: 'linux_command_option', comment: '리눅스 명령어 옵션' })
 export class CommandOptionEntity extends DefaultEntity {
-  @Column('varchar', { length: 20, comment: '옵션 이름' })
+  @Column('varchar', { length: 100, comment: '옵션 이름' })
   name: string;
 
   @Column('text', { comment: '설명' })

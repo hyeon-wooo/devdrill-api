@@ -9,12 +9,14 @@ import { AdminEntity } from 'src/admin/infra/admin.entity';
 @Injectable()
 export class AuthService {
   private salt: number;
+  private isDev: boolean;
 
   constructor(
     private jwtService: JwtService,
     private configService: ConfigService,
   ) {
     this.salt = Number(this.configService.get('BCRYPT_SALT'));
+    this.isDev = this.configService.get('NODE_ENV') === 'development';
   }
 
   verify(token: string) {
@@ -56,7 +58,7 @@ export class AuthService {
           role: ERole.ADM,
           level: admin.level,
         },
-        { expiresIn: '1m' },
+        { expiresIn: this.isDev ? '30d' : '1m' },
       ),
       refreshToken: this.jwtService.sign(
         {

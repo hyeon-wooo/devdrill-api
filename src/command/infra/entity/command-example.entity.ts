@@ -10,9 +10,12 @@ export class CommandExampleEntity extends DefaultEntity {
   @Column({ comment: '설명' })
   description: string;
 
+  @Column('int', { default: 10, comment: '출력 순서 (낮을수록 우선)' })
+  displaySequence: number;
+
   @Column('int', { comment: '명령어 ID (linux_command.id)' })
   commandId: number;
 
-  @ManyToOne(() => CommandEntity)
+  @ManyToOne(() => CommandEntity, (command) => command.examples)
   command: CommandEntity;
 }

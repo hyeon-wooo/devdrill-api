@@ -3,6 +3,7 @@ import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 import { ECommandImportance } from '../../domain/command.enum';
 import { CommandCategoryEntity } from './command-category.entity';
 import { CommandSubEntity } from './command-sub.entity';
+import { CommandExampleEntity } from './command-example.entity';
 
 @Entity({ name: 'linux_command', comment: '리눅스 명령어' })
 export class CommandEntity extends DefaultEntity {
@@ -38,4 +39,7 @@ export class CommandEntity extends DefaultEntity {
 
   @OneToMany(() => CommandSubEntity, (sub) => sub.command)
   subCommands: CommandSubEntity[];
+
+  @OneToMany(() => CommandExampleEntity, (example) => example.command)
+  examples: CommandExampleEntity[];
 }

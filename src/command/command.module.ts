@@ -20,6 +20,8 @@ import { CommandSubRepository } from './infra/repository/command-sub.repository'
 import { CommandOptionRepository } from './infra/repository/command-options.repository';
 import { CommandExampleEntity } from './infra/entity/command-example.entity';
 import { CommandExampleRepository } from './infra/repository/command-example.repository';
+import { CommandAdmController } from './interface/command-adm.controller';
+import { CommandAdmService } from './app/command-adm.service';
 
 @Module({
   imports: [
@@ -34,7 +36,11 @@ import { CommandExampleRepository } from './infra/repository/command-example.rep
       CommandExampleEntity,
     ]),
   ],
-  controllers: [CommandController, CommandCategoryController],
+  controllers: [
+    CommandController,
+    CommandCategoryController,
+    CommandAdmController,
+  ],
   providers: [
     CommandRepository,
     CommandCategoryRepository,
@@ -47,6 +53,7 @@ import { CommandExampleRepository } from './infra/repository/command-example.rep
 
     CommandService,
     CommandCategoryService,
+    CommandAdmService,
   ],
 })
 export class CommandModule {}
