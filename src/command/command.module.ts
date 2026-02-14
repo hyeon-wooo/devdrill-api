@@ -10,10 +10,16 @@ import { CommandBookmarkEntity } from './infra/entity/command-bookmark.entity';
 import { CommandRepository } from './infra/repository/command.repository';
 import { CommandCategoryRepository } from './infra/repository/command-category.repository';
 import { CommandLikeRepository } from './infra/repository/command-like.repository';
-import { CommandMasteryRepository } from './infra/repository/cmmand-mastery.repository';
+import { CommandMasteryRepository } from './infra/repository/command-mastery.repository';
 import { CommandBookmarkRepository } from './infra/repository/command-bookmark.repository';
 import { CommandCategoryController } from './interface/command-category.controller';
 import { CommandCategoryService } from './app/command-category.service';
+import { CommandSubEntity } from './infra/entity/command-sub.entity';
+import { CommandOptionEntity } from './infra/entity/command-option.entity';
+import { CommandSubRepository } from './infra/repository/command-sub.repository';
+import { CommandOptionRepository } from './infra/repository/command-options.repository';
+import { CommandExampleEntity } from './infra/entity/command-example.entity';
+import { CommandExampleRepository } from './infra/repository/command-example.repository';
 
 @Module({
   imports: [
@@ -23,6 +29,9 @@ import { CommandCategoryService } from './app/command-category.service';
       CommandLikeEntity,
       CommandMasteryEntity,
       CommandBookmarkEntity,
+      CommandSubEntity,
+      CommandOptionEntity,
+      CommandExampleEntity,
     ]),
   ],
   controllers: [CommandController, CommandCategoryController],
@@ -32,6 +41,9 @@ import { CommandCategoryService } from './app/command-category.service';
     CommandLikeRepository,
     CommandMasteryRepository,
     CommandBookmarkRepository,
+    CommandSubRepository,
+    CommandOptionRepository,
+    CommandExampleRepository,
 
     CommandService,
     CommandCategoryService,

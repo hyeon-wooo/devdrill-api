@@ -1,7 +1,8 @@
 import { DefaultEntity } from 'src/common/default.entity';
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 import { ECommandImportance } from '../../domain/command.enum';
 import { CommandCategoryEntity } from './command-category.entity';
+import { CommandSubEntity } from './command-sub.entity';
 
 @Entity({ name: 'linux_command', comment: '리눅스 명령어' })
 export class CommandEntity extends DefaultEntity {
@@ -20,6 +21,9 @@ export class CommandEntity extends DefaultEntity {
   })
   importance: ECommandImportance;
 
+  @Column('boolean', { default: true, comment: '공개 여부' })
+  isPublic: boolean;
+
   @Column('boolean', { default: false, comment: '프리미엄 여부' })
   isPremium: boolean;
 
@@ -31,4 +35,7 @@ export class CommandEntity extends DefaultEntity {
 
   @ManyToOne(() => CommandCategoryEntity)
   category: CommandCategoryEntity;
+
+  @OneToMany(() => CommandSubEntity, (sub) => sub.command)
+  subCommands: CommandSubEntity[];
 }

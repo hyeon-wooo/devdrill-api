@@ -1,5 +1,4 @@
 import { Controller, Get } from '@nestjs/common';
-import { CommandService } from '../app/command.service';
 import { CommandCategoryService } from '../app/command-category.service';
 import { sendSuccessRes } from 'src/common/generateResponse';
 
@@ -7,9 +6,9 @@ import { sendSuccessRes } from 'src/common/generateResponse';
 export class CommandCategoryController {
   constructor(private readonly service: CommandCategoryService) {}
 
-  @Get('/')
-  async getCategoryList() {
-    const found = await this.service.getCategoryList();
+  @Get('/name')
+  async getCategoryNameList() {
+    const found = await this.service.getCategoryNameList();
     return sendSuccessRes({
       list: found,
     });

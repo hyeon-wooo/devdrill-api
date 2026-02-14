@@ -5,9 +5,9 @@ import { CommandCategoryRepository } from '../infra/repository/command-category.
 export class CommandCategoryService {
   constructor(private readonly repo: CommandCategoryRepository) {}
 
-  async getCategoryList() {
+  async getCategoryNameList() {
     return this.repo.findMany({
-      select: ['id', 'name', 'description', 'displaySequence'],
+      select: ['id', 'name'],
       order: { displaySequence: 'ASC' },
     });
   }
