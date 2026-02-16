@@ -1,3 +1,4 @@
+import { ETopic } from 'src/command/domain/command.enum';
 import { DefaultEntity } from 'src/common/default.entity';
 import { Column, Entity } from 'typeorm';
 
@@ -18,7 +19,11 @@ export class UserEntity extends DefaultEntity {
   @Column('varchar', { nullable: true, comment: 'FCM 토큰' })
   fcm: string | null;
 
-  @Column('datetime', { nullable: true, comment: '마지막 접속 일시', default: null })
+  @Column('datetime', {
+    nullable: true,
+    comment: '마지막 접속 일시',
+    default: null,
+  })
   lastAccessAt: Date | null;
 
   @Column('boolean', { default: false, comment: '광고 건너뛰기 가능 여부' })
@@ -26,4 +31,12 @@ export class UserEntity extends DefaultEntity {
 
   @Column('boolean', { default: false, comment: '모든 문제 읽기 가능 여부' })
   canReadAll: boolean;
+
+  @Column('enum', {
+    enum: ETopic,
+    comment: '관심 주제',
+    default: null,
+    nullable: true,
+  })
+  interestTopic: ETopic | null;
 }

@@ -9,12 +9,13 @@ import { ClientIp } from 'src/common/client-ip.decorator';
 import { Not } from 'typeorm';
 import { LogService } from 'src/log/app/log.service';
 import { SessionId } from 'src/log/app/session-id.decorator';
+import { ETopic } from 'src/command/domain/command.enum';
 
 @Controller('user')
 export class UserController {
   constructor(
     private readonly service: UserService,
-    private readonly fcmHistoryService: FcmHistoryService
+    private readonly fcmHistoryService: FcmHistoryService,
   ) {}
 
   @Post('/signup')
@@ -27,7 +28,11 @@ export class UserController {
   }
 
   @Post('/login')
-  async login(@Body() body: LoginBodyDto, @ClientIp() ip: string, @SessionId() sessionId: string) {
+  async login(
+    @Body() body: LoginBodyDto,
+    @ClientIp() ip: string,
+    @SessionId() sessionId: string,
+  ) {
     const result = await this.service.login(body, ip, sessionId);
     if (result === -1) return sendFailRes('일치하는 계정 정보가 없습니다.');
 
@@ -61,6 +66,19 @@ export class UserController {
     if (result === 1)
       return sendFailRes('새 비밀번호와 비밀번호 확인이 일치하지 않습니다.');
     if (result === 2) return sendFailRes('현재 비밀번호가 일치하지 않습니다.');
+
+    return sendSuccessRes(true);
+  }
+  @Patch('/topic')
+  @UseGuards(JwtAuthGuard)
+  async changeTopic(
+    @Body()
+    body: { topic: ETopic },
+    @Req() { user }: Request,
+  ) {
+    if (!user) return sendFailRes('인증 정보가 올바르지 않습니다.');
+
+    await this.service.update({ id: user.id }, { interestTopic: body.topic });
 
     return sendSuccessRes(true);
   }
