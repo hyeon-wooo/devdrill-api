@@ -1,5 +1,8 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { ECommandImportance } from 'src/command/domain/command.enum';
+import {
+  ECommandImportance,
+  ECommandMastery,
+} from 'src/command/domain/command.enum';
 import { ListQueryDto } from 'src/common/default.dto';
 
 /** 커맨드 */

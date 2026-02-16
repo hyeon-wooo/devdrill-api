@@ -1,6 +1,6 @@
 import { DefaultEntity } from 'src/common/default.entity';
 import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
-import { ECommandImportance } from '../../domain/command.enum';
+import { ECommandImportance, ETopic } from '../../domain/command.enum';
 import { CommandCategoryEntity } from './command-category.entity';
 import { CommandSubEntity } from './command-sub.entity';
 import { CommandExampleEntity } from './command-example.entity';
@@ -31,10 +31,13 @@ export class CommandEntity extends DefaultEntity {
   @Column('int', { default: 10, comment: '앱 출력 순서 (낮을수록 우선)' })
   displaySequence: number;
 
+  @Column('enum', { enum: ETopic, comment: '주제', default: ETopic.LINUX })
+  topic: ETopic;
+
   @Column('int', { comment: '카테고리 ID (linux_command_category.id)' })
   categoryId: number;
 
-  @ManyToOne(() => CommandCategoryEntity)
+  @ManyToOne(() => CommandCategoryEntity, (category) => category.commands)
   category: CommandCategoryEntity;
 
   @OneToMany(() => CommandSubEntity, (sub) => sub.command)

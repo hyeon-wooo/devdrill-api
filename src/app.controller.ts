@@ -13,6 +13,7 @@ import { JwtAuthGuard, JwtPassGuard } from './auth/jwt.guard';
 import { Request } from 'express';
 import { LogService } from './log/app/log.service';
 import { SessionId } from './log/app/session-id.decorator';
+import { CommandService } from './command/app/command.service';
 
 @Controller()
 export class AppController {
@@ -24,6 +25,7 @@ export class AppController {
     private readonly examService: ExamService,
     private readonly practiceService: PracticeService,
     private readonly logService: LogService,
+    private readonly commandService: CommandService,
   ) {}
 
   @Get()
@@ -46,7 +48,6 @@ export class AppController {
     @ClientIp() ip: string,
     @SessionId() sessionId: string,
   ) {
-
     if (!sessionId) return sendFailRes('세션 ID가 없습니다.');
 
     const launchLogPayload: {
@@ -70,8 +71,8 @@ export class AppController {
       appVersion: body.appVersion,
       ip,
       userId: null,
-      initialUserId: null
-    }
+      initialUserId: null,
+    };
 
     const res: {
       accessToken?: string;
@@ -105,7 +106,10 @@ export class AppController {
         launchLogPayload.initialUserId = result.me.id;
 
         // 마지막 접속 일시 업데이트
-        this.userService.update({ id: result.me.id }, { lastAccessAt: new Date() });
+        this.userService.update(
+          { id: result.me.id },
+          { lastAccessAt: new Date() },
+        );
       }
     }
 
@@ -122,22 +126,22 @@ export class AppController {
     if (!user) return sendFailRes('비정상적인 접근입니다.');
     const userId = user.id;
 
-    const inProgressPractice =
-      await this.practiceService.getInProgressPractice(userId);
+    const foundUser = await this.userService.findOne({ id: userId });
+    if (!foundUser) return sendFailRes('비정상적인 오류가 발생했습니다.');
 
-    const examList = await this.examService.getExamList(
+    const homeCommand = await this.commandService.getHome(
       userId,
-      user.canReadAll,
+      foundUser.interestTopic,
     );
 
     return sendSuccessRes({
-      inProgressPractice: inProgressPractice
-        ? {
-            id: inProgressPractice.id,
-            examName: `${inProgressPractice.exam.name} ${inProgressPractice.exam.subName}`,
-          }
-        : null,
-      examList,
+      // deprecated
+      inProgressPractice: null,
+      // deprecated
+      examList: [],
+
+      categoryCommandProgress: homeCommand.categoryProgress,
+      importanceCommandProgress: homeCommand.importanceProgress,
     });
   }
 }

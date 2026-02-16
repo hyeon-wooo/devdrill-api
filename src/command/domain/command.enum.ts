@@ -15,3 +15,11 @@ export enum ECommandMastery {
   /** 자유자재로 사용 가능 */
   MASTER = 'MASTER',
 }
+
+export enum ETopic {
+  LINUX = 'Linux',
+  DOCKER = 'Docker',
+  K8S = 'Kubernetes',
+  AWS = 'AWS',
+  GIT = 'Git',
+}

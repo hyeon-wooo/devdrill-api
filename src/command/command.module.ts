@@ -55,5 +55,6 @@ import { CommandAdmService } from './app/command-adm.service';
     CommandCategoryService,
     CommandAdmService,
   ],
+  exports: [CommandService],
 })
 export class CommandModule {}
