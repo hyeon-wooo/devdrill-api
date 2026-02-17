@@ -102,6 +102,9 @@ export class CommandService {
         subCommands: command?.subCommands.sort(
           (a, b) => a.displaySequence - b.displaySequence,
         ),
+        examples: command?.examples.sort(
+          (a, b) => a.displaySequence - b.displaySequence,
+        ),
       },
       isBookmark: !!bookmarked,
       isLiked: !!liked,
@@ -165,7 +168,10 @@ export class CommandService {
 
     const allCommands = await this.repo.findMany({ where: { topic } });
     allCommands.forEach((c) => {
-      categoryProgress[c.categoryId].total++;
+      const categoryIdx = categoryProgress.findIndex(
+        (ca) => ca.id === c.categoryId,
+      );
+      categoryProgress[categoryIdx].total++;
       importanceProgress[c.importance].total++;
     });
 
@@ -186,7 +192,10 @@ export class CommandService {
     });
 
     targetCommands.forEach((c) => {
-      categoryProgress[c.categoryId].active++;
+      const categoryIdx = categoryProgress.findIndex(
+        (ca) => ca.id === c.categoryId,
+      );
+      categoryProgress[categoryIdx].active++;
       importanceProgress[c.importance].active++;
     });
 
