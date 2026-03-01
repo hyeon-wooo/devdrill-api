@@ -59,6 +59,11 @@ export class CommandAdmService {
       { id },
       { subCommands: true, examples: true },
     );
+    found?.subCommands.sort((a, b) => a.displaySequence - b.displaySequence);
+    found?.subCommands.forEach((sub) => {
+      sub.options.sort((a, b) => a.displaySequence - b.displaySequence);
+    });
+    found?.examples.sort((a, b) => a.displaySequence - b.displaySequence);
     return found;
   }
 
