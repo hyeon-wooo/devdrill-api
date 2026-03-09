@@ -67,8 +67,8 @@ jobs:
           git clone https://x-access-token:${GITOPS_TOKEN}@github.com/${{ env.GITOPS_OWNER }}/${{ env.GITOPS_REPONAME }}.git gitops-temp
           cd gitops-temp
 
-          # 2. 이미지 태그 업데이트 (경로: app/default/deployment.yaml)
-          sed -i "s|image: ${{ env.REGISTRY }}/${{ env.HARBOR_PROJECT }}/${{ env.IMAGE_NAME }}:.*|image: ${{ env.REGISTRY }}/${{ env.HARBOR_PROJECT }}/${{ env.IMAGE_NAME }}:${{ env.NEW_TAG }}|g" app/default/deployment.yaml
+          # 2. 이미지 태그 업데이트 (경로: cluster/workload/devdrill-api/deployment.yaml)
+          sed -i "s|image: ${{ env.REGISTRY }}/${{ env.HARBOR_PROJECT }}/${{ env.IMAGE_NAME }}:.*|image: ${{ env.REGISTRY }}/${{ env.HARBOR_PROJECT }}/${{ env.IMAGE_NAME }}:${{ env.NEW_TAG }}|g" cluster/workload/devdrill-api/deployment.yaml
 
           # 3. 변경사항 커밋 및 푸시
           git config user.name "github-actions[bot]"
