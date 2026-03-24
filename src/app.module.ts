@@ -24,6 +24,7 @@ import { LoggerModule } from 'nestjs-pino';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { UserContextInterceptor } from './common/user-context.interceptor';
 import { CommandModule } from './command/command.module';
+import { RedisModule } from './redis/redis.module';
 
 dotenv.config();
 
@@ -67,6 +68,7 @@ dotenv.config();
     NoticeModule,
     LogModule,
     CommandModule,
+    RedisModule,
   ],
   controllers: [AppController],
   providers: [

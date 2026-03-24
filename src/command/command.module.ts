@@ -22,6 +22,7 @@ import { CommandExampleEntity } from './infra/entity/command-example.entity';
 import { CommandExampleRepository } from './infra/repository/command-example.repository';
 import { CommandAdmController } from './interface/command-adm.controller';
 import { CommandAdmService } from './app/command-adm.service';
+import { RedisModule } from 'src/redis/redis.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { CommandAdmService } from './app/command-adm.service';
       CommandOptionEntity,
       CommandExampleEntity,
     ]),
+    RedisModule,
   ],
   controllers: [
     CommandController,

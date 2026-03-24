@@ -14,6 +14,7 @@ import {
   ECommandMastery,
   ETopic,
 } from '../domain/command.enum';
+import { RedisService } from 'src/redis/redis.service';
 
 @Injectable()
 export class CommandService {
@@ -26,6 +27,7 @@ export class CommandService {
     private readonly subRepo: CommandSubRepository,
     private readonly optionRepo: CommandOptionRepository,
     private readonly exampleRepo: CommandExampleRepository,
+    private readonly redisService: RedisService,
   ) {}
 
   async getList(userId: number, isPremium: boolean) {
@@ -87,10 +89,21 @@ export class CommandService {
   }
 
   async getDetail(commandId: number, userId: number) {
-    const command = await this.repo.findOne(
-      { id: commandId },
-      { subCommands: { options: true }, examples: true },
-    );
+    let command: CommandEntity | null = null;
+
+    // Look Aside
+    const cached = await this.redisService.getCommandCache(commandId);
+    if (!cached.needUpdate) command = cached.command;
+    else {
+      const gapStart = Date.now();
+      command = await this.repo.findOne(
+        { id: commandId },
+        { subCommands: { options: true }, examples: true },
+      );
+      const gapEnd = Date.now();
+      if (!command) return null;
+      this.redisService.setCommandCache(command, gapEnd - gapStart);
+    }
 
     const bookmarked = await this.bookmarkRepo.findOne({ commandId, userId });
     const liked = await this.likeRepo.findOne({ commandId, userId });

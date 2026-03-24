@@ -34,6 +34,9 @@ export class CommandEntity extends DefaultEntity {
   @Column('enum', { enum: ETopic, comment: '주제', default: ETopic.LINUX })
   topic: ETopic;
 
+  @Column('int', { default: 1000, comment: '캐시 만료시간 (초)' })
+  ttl: number;
+
   @Column('int', { comment: '카테고리 ID (linux_command_category.id)' })
   categoryId: number;
 
