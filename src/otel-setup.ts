@@ -40,7 +40,12 @@ const sdk = new NodeSDK({
 
   // 계측 도구 등록 (핵심 부분!)
   instrumentations: [
-    getNodeAutoInstrumentations(), // HTTP, Express 등 자동 수집
+    getNodeAutoInstrumentations({
+      // ioredis 제외
+      '@opentelemetry/instrumentation-ioredis': {
+        enabled: false,
+      },
+    }), // HTTP, Express 등 자동 수집
     new RuntimeNodeInstrumentation(), // 런타임(GC, Heap) 상세 수집
   ],
 });
