@@ -12,6 +12,11 @@ import { REDIS_CLIENT_TOKEN } from './redis.constant';
       provide: REDIS_CLIENT_TOKEN,
       useFactory: (configService: ConfigService) => {
         const logger = new Logger('RedisClient');
+        logger.log(
+          `redis: ${configService.get<string>('REDIS_HOST')}:${configService.get<number>(
+            'REDIS_PORT',
+          )}, ${configService.get<string>('REDIS_USER')}, ${configService.get<string>('REDIS_PW')}`,
+        );
         const redis = new Redis({
           host: configService.get<string>('REDIS_HOST'),
           port: configService.get<number>('REDIS_PORT'),
