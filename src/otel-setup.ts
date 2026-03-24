@@ -21,7 +21,7 @@ const sdk = new NodeSDK({
     exporter: new OTLPMetricExporter({
       url: process.env.OTEL_EXPORTER_OTLP_ENDPOINT,
     }),
-    exportIntervalMillis: 60000, // 1분 단위 전송 (필요시 조정)
+    exportIntervalMillis: 15000, // 15초 단위 전송
   }),
 
   // 트레이스 설정 (traceExporter 사용)
