@@ -14,6 +14,7 @@ import { JwtAuthGuard } from 'src/auth/jwt.guard';
 import { Request } from 'express';
 import { sendSuccessRes } from 'src/common/generateResponse';
 import { ECommandMastery } from '../domain/command.enum';
+import { SessionId } from 'src/log/app/session-id.decorator';
 
 @Controller('command')
 export class CommandController {
@@ -32,9 +33,17 @@ export class CommandController {
 
   @Get('/:id')
   @UseGuards(JwtAuthGuard)
-  async getDetail(@Param('id') idStr: string, @Req() { user }: Request) {
+  async getDetail(
+    @Param('id') idStr: string,
+    @Req() { user }: Request,
+    @SessionId() sessionId: string,
+  ) {
     const userId = user!.id;
-    const result = await this.service.getDetail(Number(idStr), userId);
+    const result = await this.service.getDetail(
+      Number(idStr),
+      userId,
+      sessionId,
+    );
     return sendSuccessRes(result);
   }
 

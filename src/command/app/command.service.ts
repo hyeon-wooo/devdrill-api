@@ -15,6 +15,7 @@ import {
   ETopic,
 } from '../domain/command.enum';
 import { RedisService } from 'src/redis/redis.service';
+import { LogService } from 'src/log/app/log.service';
 
 @Injectable()
 export class CommandService {
@@ -28,6 +29,7 @@ export class CommandService {
     private readonly optionRepo: CommandOptionRepository,
     private readonly exampleRepo: CommandExampleRepository,
     private readonly redisService: RedisService,
+    private readonly logService: LogService,
   ) {}
 
   async getList(userId: number, isPremium: boolean) {
@@ -88,7 +90,7 @@ export class CommandService {
     };
   }
 
-  async getDetail(commandId: number, userId: number) {
+  async getDetail(commandId: number, userId: number, sessionId: string) {
     let command: CommandEntity | null = null;
 
     // Look Aside
@@ -108,6 +110,13 @@ export class CommandService {
     const bookmarked = await this.bookmarkRepo.findOne({ commandId, userId });
     const liked = await this.likeRepo.findOne({ commandId, userId });
     const mastery = await this.masteryRepo.findOne({ commandId, userId });
+
+    this.logService.createCommandLog({
+      commandId,
+      userId,
+      sessionId,
+      accessAt: new Date(),
+    });
 
     return {
       command: {
