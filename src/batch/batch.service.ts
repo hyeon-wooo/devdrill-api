@@ -16,7 +16,6 @@ export class BatchService {
     private readonly adminService: AdminService,
     private readonly authService: AuthService,
     private readonly questionService: QuestionService,
-    private readonly logService: LogService,
   ) {}
 
   @Timeout(1000)
@@ -99,23 +98,4 @@ export class BatchService {
 
   //   this.logger.log('문제 저장 완료');
   // }
-
-  @Timeout(1000)
-  async migrateLog() {
-    const screenLogs = await this.logService.getCommandScreenLogs();
-
-    const commandLogs = screenLogs.map((log) => {
-      const commandId = Number(JSON.parse(log.params!).id);
-      return {
-        commandId,
-        userId: log.userId,
-        sessionId: log.sessionId,
-        accessAt: log.enterAt,
-      };
-    });
-
-    for (const log of commandLogs) await this.logService.createCommandLog(log);
-
-    console.log('end');
-  }
 }

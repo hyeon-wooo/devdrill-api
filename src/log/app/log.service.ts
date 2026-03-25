@@ -56,11 +56,4 @@ export class LogService {
       accessAt: payload.accessAt || new Date(),
     });
   }
-
-  async getCommandScreenLogs() {
-    return this.screenRepo.findMany({
-      where: { screenName: 'CommandDetail' },
-      order: { enterAt: 'ASC' },
-    });
-  }
 }
