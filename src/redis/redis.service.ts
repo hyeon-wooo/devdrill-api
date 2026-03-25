@@ -61,4 +61,8 @@ export class RedisService {
 
     return Math.random() < elapsedRatio;
   }
+
+  async delCommandCache(commandId: number) {
+    await this.redis.call('DEL', `cmd:${commandId}`);
+  }
 }

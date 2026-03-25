@@ -21,12 +21,16 @@ import { JwtAuthGuard } from 'src/auth/jwt.guard';
 import { RolesGuard } from 'src/auth/role/role.guard';
 import { Roles } from 'src/auth/role/role.decorator';
 import { ERole } from 'src/auth/role/role.enum';
+import { RedisService } from 'src/redis/redis.service';
 
 @Controller('adm/command')
 @Roles(ERole.ADM)
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class CommandAdmController {
-  constructor(private service: CommandAdmService) {}
+  constructor(
+    private service: CommandAdmService,
+    private readonly redisService: RedisService,
+  ) {}
 
   /** 명령어 목록 */
   @Get('/')
@@ -72,11 +76,14 @@ export class CommandAdmController {
   /** 서브커맨드 수정 */
   @Put('/:id/sub/:subId')
   async updateSubCommand(
+    @Param('id') commandIdStr: string,
     @Param('subId') subIdStr: string,
     @Body() body: CommandSubUpdateBodyDto,
   ) {
+    const commandId = Number(commandIdStr);
     const subId = Number(subIdStr);
     await this.service.updateSubCommand(subId, body);
+    this.redisService.delCommandCache(commandId);
     return sendSuccessRes(true);
   }
 
@@ -88,6 +95,7 @@ export class CommandAdmController {
   ) {
     const id = Number(idStr);
     await this.service.updateCommand(id, body);
+    this.redisService.delCommandCache(id);
     return sendSuccessRes(true);
   }
 }
