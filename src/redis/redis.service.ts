@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { REDIS_CLIENT_TOKEN } from './redis.constant';
+import { BREAKER_OPEN, REDIS_CLIENT_TOKEN } from './redis.constant';
 import Redis from 'ioredis';
 import { CommandEntity } from 'src/command/infra/entity/command.entity';
 import * as CircuitBreaker from 'opossum';
@@ -28,6 +28,8 @@ export class RedisService {
     this.breaker.on('failure', (err) => {
       this.breaker.open();
     });
+
+    this.breaker.fallback(() => BREAKER_OPEN);
   }
 
   isRedisReconnecting() {
@@ -49,6 +51,12 @@ export class RedisService {
       };
 
     const cached = await this.breaker.fire('GET', `cmd:${commandId}`);
+    if (cached === BREAKER_OPEN)
+      return {
+        command: null,
+        needUpdate: false,
+      };
+
     const command = cached
       ? (JSON.parse(cached as string) as TCommandCache)
       : null;
