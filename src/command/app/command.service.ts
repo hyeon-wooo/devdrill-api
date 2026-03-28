@@ -95,7 +95,8 @@ export class CommandService {
 
     // Look Aside
     const cached = await this.redisService.getCommandCache(commandId);
-    if (!cached.needUpdate) command = cached.command;
+    // 캐시데이터가 있으면서 갱신할 필요가 없을 때만 cached 사용.
+    if (cached.command && !cached.needUpdate) command = cached.command;
     else {
       const gapStart = Date.now();
       command = await this.repo.findOne(
@@ -104,7 +105,9 @@ export class CommandService {
       );
       const gapEnd = Date.now();
       if (!command) return null;
-      this.redisService.setCommandCache(command, gapEnd - gapStart);
+
+      if (cached.needUpdate)
+        this.redisService.setCommandCache(command, gapEnd - gapStart);
     }
 
     const bookmarked = await this.bookmarkRepo.findOne({ commandId, userId });
