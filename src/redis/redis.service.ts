@@ -2,17 +2,53 @@ import { Inject, Injectable } from '@nestjs/common';
 import { REDIS_CLIENT_TOKEN } from './redis.constant';
 import Redis from 'ioredis';
 import { CommandEntity } from 'src/command/infra/entity/command.entity';
+import * as CircuitBreaker from 'opossum';
 
 type TCommandCache = CommandEntity & { expiry: number; gap: number };
 
 @Injectable()
 export class RedisService {
-  constructor(@Inject(REDIS_CLIENT_TOKEN) private readonly redis: Redis) {}
+  private readonly breaker: CircuitBreaker;
+  constructor(@Inject(REDIS_CLIENT_TOKEN) private readonly redis: Redis) {
+    this.breaker = new CircuitBreaker(this.execute.bind(this), {
+      // redis command timeout -> 시간 초과 시 open
+      timeout: 1000,
+      // 1% 이상 실패 시 open
+      errorThresholdPercentage: 1,
+      // open -> half-open으로 변경까지 걸리는 시간: 30초
+      resetTimeout: 30_000,
+      // half open되었을 때 open으로갈지 close로갈지 판단하기 위한 시간기반 실패율 계산: 시간=10초, 실패율=0초과.
+      rollingCountTimeout: 10000,
+      rollingCountBuckets: 10,
+      // 요청 통계 비활성화
+      rollingPercentilesEnabled: false,
+    });
+
+    // 실패하면 바로 open.
+    this.breaker.on('failure', (err) => {
+      this.breaker.open();
+    });
+  }
+
+  isRedisReconnecting() {
+    return this.redis.status === 'reconnecting';
+  }
+
+  execute(command: string, ...args: (string | number)[]) {
+    return this.redis.call(command, ...args);
+  }
 
   async getCommandCache(
     commandId: number,
   ): Promise<{ command: TCommandCache | null; needUpdate: boolean }> {
-    const cached = await this.redis.call('GET', `cmd:${commandId}`);
+    // NOTE: redis 장애 후 retryStrategy 실행중이라면 캐시=null로 반환하고, 이후 DB에서 가져온 데이터를 redis에 SET하지 않도록 needUpdate도 false로 반환.
+    if (this.isRedisReconnecting())
+      return {
+        command: null,
+        needUpdate: false,
+      };
+
+    const cached = await this.breaker.fire('GET', `cmd:${commandId}`);
     const command = cached
       ? (JSON.parse(cached as string) as TCommandCache)
       : null;
@@ -32,6 +68,8 @@ export class RedisService {
   }
 
   async setCommandCache(command: CommandEntity, gap: number) {
+    if (this.isRedisReconnecting()) return false;
+
     const expiry = command.ttl + Math.floor(Date.now() / 1000);
     const cache = {
       ...command,
@@ -40,7 +78,7 @@ export class RedisService {
     };
 
     // res: "OK"
-    const result = await this.redis.call(
+    const result = await this.breaker.fire(
       'SET',
       `cmd:${command.id}`,
       JSON.stringify(cache),
@@ -63,6 +101,6 @@ export class RedisService {
   }
 
   async delCommandCache(commandId: number) {
-    await this.redis.call('DEL', `cmd:${commandId}`);
+    await this.breaker.fire('DEL', `cmd:${commandId}`);
   }
 }
