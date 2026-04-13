@@ -17,6 +17,7 @@ import {
 import { RedisService } from 'src/redis/redis.service';
 import { LogService } from 'src/log/app/log.service';
 import * as fs from 'fs';
+import { AdService } from 'src/ad/app/ad.service';
 
 @Injectable()
 export class CommandService {
@@ -31,6 +32,7 @@ export class CommandService {
     private readonly exampleRepo: CommandExampleRepository,
     private readonly redisService: RedisService,
     private readonly logService: LogService,
+    private readonly adService: AdService,
   ) {
     // setTimeout(() => {
     //   this.load();
@@ -163,6 +165,8 @@ export class CommandService {
       accessAt: new Date(),
     });
 
+    const needAd = await this.adService.needShowAd(userId);
+
     return {
       command: {
         ...command,
@@ -176,6 +180,7 @@ export class CommandService {
       isBookmark: !!bookmarked,
       isLiked: !!liked,
       mastery: !!mastery ? mastery.mastery : ECommandMastery.NOT_AT_ALL,
+      needAd,
     };
   }
 
