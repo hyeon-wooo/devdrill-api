@@ -27,7 +27,6 @@ export class AppController {
     private readonly practiceService: PracticeService,
     private readonly logService: LogService,
     private readonly commandService: CommandService,
-    private readonly techService: TechService,
   ) {}
 
   @Get()
@@ -144,7 +143,6 @@ export class AppController {
 
       categoryCommandProgress: homeCommand.categoryProgress,
       importanceCommandProgress: homeCommand.importanceProgress,
-      techList: await this.techService.getList(),
     });
   }
 }

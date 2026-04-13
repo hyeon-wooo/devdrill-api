@@ -1,5 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
-import { TechService } from './app/tech.service';
+import { TechService } from '../app/tech.service';
 import { sendSuccessRes } from 'src/common/generateResponse';
 
 @Controller('tech')
