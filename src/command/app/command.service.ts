@@ -254,6 +254,7 @@ export class CommandService {
     const targetCommands = await this.repo.findMany({
       where: {
         id: In(targetCommandIds),
+        techId,
       },
       relations: { category: true },
     });

@@ -32,9 +32,6 @@ export class CommandEntity extends DefaultEntity {
   @Column('int', { default: 10, comment: '앱 출력 순서 (낮을수록 우선)' })
   displaySequence: number;
 
-  @Column('enum', { enum: ETopic, comment: '주제', default: ETopic.LINUX })
-  topic: ETopic;
-
   @Column('int', { default: 1000, comment: '캐시 만료시간 (초)' })
   ttl: number;
 

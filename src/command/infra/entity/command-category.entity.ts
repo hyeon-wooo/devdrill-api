@@ -15,9 +15,6 @@ export class CommandCategoryEntity extends DefaultEntity {
   @Column('int', { default: 10, comment: '앱 출력 순서 (낮을수록 우선)' })
   displaySequence: number;
 
-  @Column('enum', { enum: ETopic, default: ETopic.LINUX })
-  topic: ETopic;
-
   @Column('int', { comment: '기술스택 ID (tech.id)' })
   techId: number;
 

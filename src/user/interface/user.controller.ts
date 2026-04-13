@@ -70,6 +70,8 @@ export class UserController {
 
     return sendSuccessRes(true);
   }
+
+  /** @deprecated */
   @Patch('/topic')
   @UseGuards(JwtAuthGuard)
   async changeTopic(
@@ -79,7 +81,10 @@ export class UserController {
   ) {
     if (!user) return sendFailRes('인증 정보가 올바르지 않습니다.');
 
-    await this.service.update({ id: user.id }, { interestTopic: body.topic });
+    await this.service.update(
+      { id: user.id },
+      { interestTopic: body.topic, interestTechId: 1 },
+    );
 
     return sendSuccessRes(true);
   }
