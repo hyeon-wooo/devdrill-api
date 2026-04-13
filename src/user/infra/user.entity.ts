@@ -39,4 +39,11 @@ export class UserEntity extends DefaultEntity {
     nullable: true,
   })
   interestTopic: ETopic | null;
+
+  @Column('int', {
+    comment: '관심 기술스택 ID (tech.id)',
+    default: null,
+    nullable: true,
+  })
+  interestTechId: number | null;
 }

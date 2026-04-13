@@ -32,11 +32,12 @@ export class CommandService {
     private readonly logService: LogService,
   ) {}
 
-  async getList(userId: number, isPremium: boolean) {
+  async getList(userId: number, isPremium: boolean, techId?: number) {
     const condition: FindOptionsWhere<CommandEntity> = {};
     if (isPremium) condition.isPremium = true;
 
     const categories = await this.categoryRepo.findMany({
+      where: { techId: techId ?? 1 },
       relations: {
         commands: true,
       },

@@ -25,6 +25,7 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
 import { UserContextInterceptor } from './common/user-context.interceptor';
 import { CommandModule } from './command/command.module';
 import { RedisModule } from './redis/redis.module';
+import { TechModule } from './tech/tech.module';
 
 dotenv.config();
 
@@ -69,6 +70,7 @@ dotenv.config();
     LogModule,
     CommandModule,
     RedisModule,
+    TechModule,
   ],
   controllers: [AppController],
   providers: [
