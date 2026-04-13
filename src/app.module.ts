@@ -14,7 +14,6 @@ import { FileModule } from './file/file.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { AdminModule } from './admin/admin.module';
 import * as dotenv from 'dotenv';
-import { BatchModule } from './batch/batch.module';
 import { ExamModule } from './exam/exam.module';
 import { PracticeModule } from './practice/practice.module';
 import { QnaModule } from './qna/qna.module';
@@ -54,7 +53,6 @@ dotenv.config();
         },
       },
     }),
-    BatchModule,
     UserModule,
     QuestionModule,
     CategoryModule,
