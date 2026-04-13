@@ -16,6 +16,7 @@ export class UserController {
   constructor(
     private readonly service: UserService,
     private readonly fcmHistoryService: FcmHistoryService,
+    private readonly logService: LogService,
   ) {}
 
   @Post('/signup')
@@ -79,6 +80,25 @@ export class UserController {
     if (!user) return sendFailRes('인증 정보가 올바르지 않습니다.');
 
     await this.service.update({ id: user.id }, { interestTopic: body.topic });
+
+    return sendSuccessRes(true);
+  }
+  @Patch('/tech')
+  @UseGuards(JwtAuthGuard)
+  async changeTech(
+    @Body() body: { techId: number },
+    @Req() { user }: Request,
+    @SessionId() sessionId: string,
+  ) {
+    if (!user) return sendFailRes('인증 정보가 올바르지 않습니다.');
+
+    await this.service.update({ id: user.id }, { interestTechId: body.techId });
+    this.logService.createTechLog({
+      techId: body.techId,
+      userId: user.id,
+      sessionId: sessionId,
+      changedAt: new Date(),
+    });
 
     return sendSuccessRes(true);
   }

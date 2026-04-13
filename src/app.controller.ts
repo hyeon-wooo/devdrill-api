@@ -14,6 +14,7 @@ import { Request } from 'express';
 import { LogService } from './log/app/log.service';
 import { SessionId } from './log/app/session-id.decorator';
 import { CommandService } from './command/app/command.service';
+import { TechService } from './tech/app/tech.service';
 
 @Controller()
 export class AppController {
@@ -26,6 +27,7 @@ export class AppController {
     private readonly practiceService: PracticeService,
     private readonly logService: LogService,
     private readonly commandService: CommandService,
+    private readonly techService: TechService,
   ) {}
 
   @Get()
@@ -131,7 +133,7 @@ export class AppController {
 
     const homeCommand = await this.commandService.getHome(
       userId,
-      foundUser.interestTopic,
+      foundUser.interestTechId,
     );
 
     return sendSuccessRes({
@@ -142,6 +144,7 @@ export class AppController {
 
       categoryCommandProgress: homeCommand.categoryProgress,
       importanceCommandProgress: homeCommand.importanceProgress,
+      techList: await this.techService.getList(),
     });
   }
 }

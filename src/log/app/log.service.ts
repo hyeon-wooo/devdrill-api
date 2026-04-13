@@ -3,6 +3,7 @@ import { LaunchLogRepository } from '../infra/launch-log/launch-log.repository';
 import { ScreenLogRepository } from '../infra/screen-log/screen-log.repository';
 import { EDeviceOS } from 'src/user/interface/user.dto';
 import { CommandLogRepository } from '../infra/command-log/command-log.repository';
+import { TechLogRepository } from '../infra/tech-log/tech-log.repository';
 
 @Injectable()
 export class LogService {
@@ -10,6 +11,7 @@ export class LogService {
     private readonly launchRepo: LaunchLogRepository,
     private readonly screenRepo: ScreenLogRepository,
     private readonly commandRepo: CommandLogRepository,
+    private readonly techRepo: TechLogRepository,
   ) {}
 
   async createScreenLog(
@@ -54,6 +56,17 @@ export class LogService {
     await this.commandRepo.create({
       ...payload,
       accessAt: payload.accessAt || new Date(),
+    });
+  }
+
+  async createTechLog(payload: {
+    techId: number;
+    userId: number | null;
+    sessionId: string;
+    changedAt: Date;
+  }) {
+    await this.techRepo.create({
+      ...payload,
     });
   }
 }

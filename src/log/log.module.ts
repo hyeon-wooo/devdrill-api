@@ -9,6 +9,8 @@ import { ScreenLogRepository } from './infra/screen-log/screen-log.repository';
 import { CommandLogEntity } from './infra/command-log/command-log.entity';
 import { CommandLogArchiveEntity } from './infra/command-log/command-log-archive.entity';
 import { CommandLogRepository } from './infra/command-log/command-log.repository';
+import { TechLogEntity } from './infra/tech-log/tech-log.entity';
+import { TechLogRepository } from './infra/tech-log/tech-log.repository';
 
 @Global()
 @Module({
@@ -18,6 +20,7 @@ import { CommandLogRepository } from './infra/command-log/command-log.repository
       ScreenLogEntity,
       CommandLogEntity,
       CommandLogArchiveEntity,
+      TechLogEntity,
     ]),
   ],
   controllers: [LogController],
@@ -26,6 +29,7 @@ import { CommandLogRepository } from './infra/command-log/command-log.repository
     LaunchLogRepository,
     ScreenLogRepository,
     CommandLogRepository,
+    TechLogRepository,
   ],
   exports: [LogService],
 })

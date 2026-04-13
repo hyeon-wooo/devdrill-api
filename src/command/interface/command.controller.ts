@@ -22,11 +22,12 @@ export class CommandController {
 
   @Get('/')
   @UseGuards(JwtAuthGuard)
-  async getList(@Req() { user }: Request) {
+  async getList(@Req() { user }: Request, @Query('techId') techId: string) {
     const userId = user!.id;
     const result = await this.service.getList(
       userId,
       user?.canReadAll ?? false,
+      Number(techId) || undefined,
     );
     return sendSuccessRes(result);
   }

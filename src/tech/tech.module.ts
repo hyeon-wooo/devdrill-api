@@ -9,5 +9,6 @@ import { TechRepository } from './infra/tech.repository';
   imports: [TypeOrmModule.forFeature([TechEntity])],
   controllers: [TechController],
   providers: [TechService, TechRepository],
+  exports: [TechService],
 })
 export class TechModule {}

@@ -16,6 +16,7 @@ import {
 } from '../domain/command.enum';
 import { RedisService } from 'src/redis/redis.service';
 import { LogService } from 'src/log/app/log.service';
+import * as fs from 'fs';
 
 @Injectable()
 export class CommandService {
@@ -30,7 +31,47 @@ export class CommandService {
     private readonly exampleRepo: CommandExampleRepository,
     private readonly redisService: RedisService,
     private readonly logService: LogService,
-  ) {}
+  ) {
+    // setTimeout(() => {
+    //   this.load();
+    // }, 1000);
+  }
+
+  async load() {
+    const data = fs.readFileSync(
+      process.cwd() + '/temp/command/redis.json',
+      'utf-8',
+    );
+    const { commands } = JSON.parse(data);
+
+    for (const command of commands) {
+      const { examples, subs, ...rest } = command;
+      const commandId = (await this.repo.create({ ...rest, techId: 2 }))[0].id;
+
+      await this.exampleRepo.create(
+        examples.map((ex) => ({
+          ...ex,
+          commandId,
+        })),
+      );
+
+      for (const sub of subs) {
+        const { options, ...subRest } = sub;
+        const subCommandId = (
+          await this.subRepo.create({ ...subRest, commandId })
+        )[0].id;
+
+        await this.optionRepo.create(
+          options.map((option) => ({
+            ...option,
+            subCommandId,
+          })),
+        );
+      }
+    }
+
+    console.log('load complete');
+  }
 
   async getList(userId: number, isPremium: boolean, techId?: number) {
     const condition: FindOptionsWhere<CommandEntity> = {};
@@ -173,11 +214,11 @@ export class CommandService {
     await this.masteryRepo.create({ commandId, userId, mastery });
   }
 
-  async getHome(userId: number, topic: ETopic | null) {
-    if (!topic) return { categoryProgress: [], importanceProgress: {} };
+  async getHome(userId: number, techId: number | null) {
+    if (!techId) return { categoryProgress: [], importanceProgress: {} };
 
     const categories = await this.categoryRepo.findMany({
-      where: { topic },
+      where: { techId },
       order: { displaySequence: 'ASC' },
     });
     const categoryProgress = categories.map((c) => ({
@@ -192,7 +233,7 @@ export class CommandService {
       [ECommandImportance.LOW]: { active: 0, total: 0 },
     };
 
-    const allCommands = await this.repo.findMany({ where: { topic } });
+    const allCommands = await this.repo.findMany({ where: { techId } });
     allCommands.forEach((c) => {
       const categoryIdx = categoryProgress.findIndex(
         (ca) => ca.id === c.categoryId,
