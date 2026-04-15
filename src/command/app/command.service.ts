@@ -41,14 +41,15 @@ export class CommandService {
 
   async load() {
     const data = fs.readFileSync(
-      process.cwd() + '/temp/command/redis.json',
+      process.cwd() + '/temp/command/kubernetes.json',
       'utf-8',
     );
     const { commands } = JSON.parse(data);
+    const techId = 5;
 
     for (const command of commands) {
       const { examples, subs, ...rest } = command;
-      const commandId = (await this.repo.create({ ...rest, techId: 2 }))[0].id;
+      const commandId = (await this.repo.create({ ...rest, techId }))[0].id;
 
       await this.exampleRepo.create(
         examples.map((ex) => ({
