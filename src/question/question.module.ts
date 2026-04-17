@@ -11,6 +11,7 @@ import { QuestionMetadataService } from './app/question-metadata.service';
 import { QuestionBookmarkEntity } from './infra/question-bookmark.entity';
 import { QuestionBookmarkService } from './app/question-bookmark.service';
 
+/** @deprecated QuizModule로 재구성 */
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -22,7 +23,12 @@ import { QuestionBookmarkService } from './app/question-bookmark.service';
     AdModule,
   ],
   controllers: [QuestionController],
-  providers: [QuestionService, QuestionHistoryService, QuestionMetadataService, QuestionBookmarkService],
+  providers: [
+    QuestionService,
+    QuestionHistoryService,
+    QuestionMetadataService,
+    QuestionBookmarkService,
+  ],
   exports: [QuestionService],
 })
 export class QuestionModule {}

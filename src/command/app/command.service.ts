@@ -17,6 +17,7 @@ import {
 import { RedisService } from 'src/redis/redis.service';
 import { LogService } from 'src/log/app/log.service';
 import * as fs from 'fs';
+import * as path from 'path';
 import { AdService } from 'src/ad/app/ad.service';
 
 @Injectable()
@@ -35,8 +36,43 @@ export class CommandService {
     private readonly adService: AdService,
   ) {
     // setTimeout(() => {
-    //   this.load();
+    //   this.backup();
     // }, 1000);
+  }
+
+  async backup() {
+    const filepath = path.join(
+      process.cwd(),
+      'temp',
+      'command',
+      'kubernetes.json',
+    );
+    const techId = 5;
+
+    const contents: {
+      categories: { id: number; name: string }[];
+      commands: CommandEntity[];
+    } = { categories: [], commands: [] };
+    const categories = await this.categoryRepo.findMany({
+      where: { techId },
+      order: { displaySequence: 'ASC' },
+      select: ['id', 'name'],
+    });
+    contents.categories = categories;
+
+    const commands = await this.repo.findMany({
+      where: { techId },
+      relations: {
+        examples: true,
+        subCommands: {
+          options: true,
+        },
+      },
+    });
+    contents.commands = commands;
+
+    fs.writeFileSync(filepath, JSON.stringify(contents), 'utf-8');
+    console.log('backup complete');
   }
 
   async load() {

@@ -25,6 +25,7 @@ import { UserContextInterceptor } from './common/user-context.interceptor';
 import { CommandModule } from './command/command.module';
 import { RedisModule } from './redis/redis.module';
 import { TechModule } from './tech/tech.module';
+import { QuizModule } from './quiz/quiz.module';
 
 dotenv.config();
 
@@ -69,6 +70,7 @@ dotenv.config();
     CommandModule,
     RedisModule,
     TechModule,
+    QuizModule,
   ],
   controllers: [AppController],
   providers: [
