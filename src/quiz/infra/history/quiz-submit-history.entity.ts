@@ -1,5 +1,6 @@
 import { DefaultEntity } from 'src/common/default.entity';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { QuizEntity } from '../quiz/quiz.entity';
 
 @Entity({ name: 'quiz_history_submit', comment: '문제풀이 제출 내역' })
 export class QuizSubmitHistoryEntity extends DefaultEntity {
@@ -20,4 +21,11 @@ export class QuizSubmitHistoryEntity extends DefaultEntity {
 
   @Column('int', { comment: '소요 시간(초). 앱에서 계산해서 전달' })
   takenSeconds: number;
+
+  @Column('int', { comment: '해당 문제를 풀어본 횟수', default: 1 })
+  cntTry: number;
+
+  @ManyToOne(() => QuizEntity)
+  @JoinColumn({ name: 'quizId' })
+  quiz: QuizEntity;
 }

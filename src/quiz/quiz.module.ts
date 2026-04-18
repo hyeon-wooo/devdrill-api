@@ -16,6 +16,7 @@ import { QuizBookmarkRepository } from './infra/bookmark/quiz-bookmark.repositor
 import { QuizDifficultRepository } from './infra/difficult/quiz-difficult.repository';
 import { QuizEnterHistoryRepository } from './infra/history/quiz-enter-history.repository';
 import { QuizSubmitHistoryRepository } from './infra/history/quiz-submit-history.repository';
+import { AdModule } from 'src/ad/ad.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { QuizSubmitHistoryRepository } from './infra/history/quiz-submit-history
       QuizEnterHistoryEntity,
       QuizSubmitHistoryEntity,
     ]),
+    AdModule,
   ],
   controllers: [QuizController],
   providers: [

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { AdLastHistoryService } from './ad-last-history.service';
 import { AdHistoryService } from './ad-history.service';
 import { EAdEventType } from '../domain/ad.enum';
+import { ONE_HOUR } from 'src/lib/util';
 
 @Injectable()
 export class AdService {
@@ -15,7 +16,7 @@ export class AdService {
     if (!already) return true;
 
     const diff = new Date().getTime() - already.lastViewedAt.getTime();
-    if (diff > 1000 * 60 * 60 * 24) return true; // 마지막 paid 이후 24시간 경과 시
+    if (diff > ONE_HOUR) return true; // 마지막 paid 이후 1시간 경과 시
 
     return false;
   }

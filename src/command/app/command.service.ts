@@ -221,7 +221,7 @@ export class CommandService {
     };
   }
 
-  async like(commandId: number, userId: number) {
+  async like(commandId: number, userId: number, sessionId: string) {
     const like = await this.likeRepo.findOne({ commandId, userId });
     if (like) {
       await this.likeRepo.deleteWithWhere({ commandId, userId });
@@ -233,7 +233,7 @@ export class CommandService {
     return true;
   }
 
-  async bookmark(commandId: number, userId: number) {
+  async bookmark(commandId: number, userId: number, sessionId: string) {
     const bookmark = await this.bookmarkRepo.findOne({ commandId, userId });
     if (bookmark) {
       await this.bookmarkRepo.deleteWithWhere({ commandId, userId });

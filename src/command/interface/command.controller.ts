@@ -50,17 +50,29 @@ export class CommandController {
 
   @Post('/:id/bookmark')
   @UseGuards(JwtAuthGuard)
-  async bookmark(@Param('id') idStr: string, @Req() { user }: Request) {
+  async bookmark(
+    @Param('id') idStr: string,
+    @Req() { user }: Request,
+    @SessionId() sessionId: string,
+  ) {
     const userId = user!.id;
-    const result = await this.service.bookmark(Number(idStr), userId);
+    const result = await this.service.bookmark(
+      Number(idStr),
+      userId,
+      sessionId,
+    );
     return sendSuccessRes({ bookmarked: result });
   }
 
   @Post('/:id/like')
   @UseGuards(JwtAuthGuard)
-  async like(@Param('id') idStr: string, @Req() { user }: Request) {
+  async like(
+    @Param('id') idStr: string,
+    @Req() { user }: Request,
+    @SessionId() sessionId: string,
+  ) {
     const userId = user!.id;
-    const result = await this.service.like(Number(idStr), userId);
+    const result = await this.service.like(Number(idStr), userId, sessionId);
     return sendSuccessRes({ liked: result });
   }
 
