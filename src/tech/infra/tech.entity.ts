@@ -10,4 +10,10 @@ export class TechEntity extends DefaultEntity {
 
   @Column('boolean', { comment: '앱에서 사용가능한지 여부', default: false })
   isAvailable: boolean;
+
+  @Column('int', { comment: '명령어 개수', default: 0 })
+  cntCommand: number;
+
+  @Column('int', { comment: '퀴즈 개수', default: 0 })
+  cntQuiz: number;
 }

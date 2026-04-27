@@ -18,7 +18,7 @@ import {
 } from './quiz.dto';
 import { Request } from 'express';
 import { SessionId } from 'src/log/app/session-id.decorator';
-import { EQuizEnterMethod } from '../domain/question.enum';
+import { EQuizEnterMethod } from '../domain/quiz.enum';
 
 @Controller('quiz')
 export class QuizController {
@@ -31,11 +31,23 @@ export class QuizController {
     const list = await this.service.getList({
       techId: Number(query.techId),
       userId: user!.id,
+      onlyBookmarked: query.onlyBookmarked === 'y',
     });
 
     return sendSuccessRes({
       list,
     });
+  }
+
+  @Get('/main')
+  @UseGuards(JwtAuthGuard)
+  async getMain(@Req() { user }: Request, @Query() query: { techId: string }) {
+    const result = await this.service.getMain({
+      userId: user!.id,
+      techId: Number(query.techId),
+    });
+
+    return sendSuccessRes(result);
   }
 
   // 상세 조회 (랜덤)
@@ -66,19 +78,20 @@ export class QuizController {
     const id = Number(idStr);
     if (isNaN(id)) return sendFailRes('잘못된 요청입니다.');
 
-    const quiz = await this.service.getDetail(id, {
+    const result = await this.service.getDetail(id, {
       userId: user!.id,
       sessionId,
       method: query.method,
     });
 
-    if (!quiz) return sendFailRes('접근할 수 없는 문제입니다.');
+    if (!result?.quiz) return sendFailRes('접근할 수 없는 문제입니다.');
 
-    return sendSuccessRes({ quiz });
+    return sendSuccessRes(result);
   }
 
   // 해설 조회
   @Get('/:id/explanation')
+  @UseGuards(JwtAuthGuard)
   async getExplanation(
     @Param('id') idStr: string,
     @Req() { user }: Request,

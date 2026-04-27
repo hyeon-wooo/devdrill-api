@@ -1,6 +1,6 @@
 import { DefaultEntity } from 'src/common/default.entity';
 import { Column, Entity, Index } from 'typeorm';
-import { EQuizAction, EQuizEnterMethod } from '../../domain/question.enum';
+import { EQuizAction, EQuizEnterMethod } from '../../domain/quiz.enum';
 
 @Entity({ name: 'quiz_history_enter', comment: '문제풀이 진입 내역' })
 export class QuizEnterHistoryEntity extends DefaultEntity {

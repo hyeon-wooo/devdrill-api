@@ -10,4 +10,8 @@ export class TechService {
       order: { displaySequence: 'ASC' },
     });
   }
+
+  async getById(id: number) {
+    return this.repo.findOne({ id });
+  }
 }

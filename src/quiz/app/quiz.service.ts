@@ -16,10 +16,11 @@ import {
 } from 'typeorm';
 import { QuizEntity } from '../infra/quiz/quiz.entity';
 import { AdService } from 'src/ad/app/ad.service';
-import { EQuizEnterMethod } from '../domain/question.enum';
+import { EQuizEnterMethod } from '../domain/quiz.enum';
 import { HistoryListQueryDto } from '../interface/quiz.dto';
 import { QuizSubmitHistoryEntity } from '../infra/history/quiz-submit-history.entity';
 import { ONE_DAY } from 'src/lib/util';
+import { TechService } from 'src/tech/app/tech.service';
 
 @Injectable()
 export class QuizService {
@@ -32,6 +33,8 @@ export class QuizService {
     private readonly enterHistoryRepo: QuizEnterHistoryRepository,
     private readonly submitHistoryRepo: QuizSubmitHistoryRepository,
     private readonly adService: AdService,
+
+    private readonly techService: TechService,
   ) {
     // setTimeout(() => {
     //   this.load();
@@ -56,6 +59,69 @@ export class QuizService {
     }
 
     console.log('complete');
+  }
+
+  async getMain({ userId, techId }: { userId: number; techId: number }) {
+    const histories = await this.submitHistoryRepo.findMany({
+      select: ['createdAt', 'isCorrect', 'quizId'],
+      where: {
+        userId,
+        quiz: {
+          techId,
+        },
+      },
+      order: { createdAt: 'DESC' },
+      relations: { quiz: true },
+    });
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const monthAgo = new Date(today.getTime() - ONE_DAY * 30);
+
+    const todayHistories = histories.filter((h) => h.createdAt >= today);
+    const monthHistories = histories.filter((h) => h.createdAt >= monthAgo);
+
+    const todayCorrect = todayHistories.filter((h) => h.isCorrect);
+    const monthCorrect = monthHistories.filter((h) => h.isCorrect);
+    const totalCorrect = histories.filter((h) => h.isCorrect);
+
+    const tech = await this.techService.getById(techId);
+    const cntQuiz = tech?.cntQuiz ?? 0;
+
+    const bookmarks = await this.bookmarkRepo.findMany({
+      select: ['id'],
+      where: { userId, quiz: { techId } },
+      relations: { quiz: true },
+    });
+    const difficults = await this.difficultRepo.findMany({
+      select: ['id'],
+      where: { userId, quiz: { techId } },
+      relations: { quiz: true },
+    });
+
+    const solvedIdSet = new Set(histories.map((h) => h.quizId));
+    const all = await this.repo.findMany({
+      select: ['id'],
+      where: { techId },
+    });
+    const unsolvedIdSet = new Set(all.map((q) => q.id)).difference(solvedIdSet);
+
+    return {
+      cntHistory: {
+        today: todayCorrect.length,
+        month: monthCorrect.length,
+        total: totalCorrect.length,
+      },
+      correctRate: {
+        month: ((monthCorrect.length / monthHistories.length) * 100).toFixed(0),
+        total: ((totalCorrect.length / histories.length) * 100).toFixed(0),
+      },
+      cntSolvedQuiz: solvedIdSet.size,
+      cntQuiz,
+      cntBookmark: bookmarks.length,
+      cntDifficult: difficults.length,
+      cntUnsolved: unsolvedIdSet.size,
+    };
   }
 
   async getList(options: {
@@ -239,6 +305,7 @@ export class QuizService {
       quiz,
       isBookmarked: !!bookmarked,
       isDifficult: !!difficult,
+      cntChoice: quiz?.answer.split(',').length,
       needShowAd,
     };
   }
@@ -275,9 +342,10 @@ export class QuizService {
     });
 
     return {
-      ...quiz,
+      quiz,
       isBookmarked: !!bookmarked,
       isDifficult: !!difficult,
+      cntChoice: quiz.answer.split(',').length,
       needShowAd,
     };
   }

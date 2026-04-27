@@ -4,7 +4,7 @@ import {
   ECodeLanguage,
   EQuizAttachmentPosition,
   EQuizAttachmentType,
-} from '../../domain/question.enum';
+} from '../../domain/quiz.enum';
 import { QuizEntity } from '../quiz/quiz.entity';
 import { FileEntity } from 'src/file/infra/file.entity';
 

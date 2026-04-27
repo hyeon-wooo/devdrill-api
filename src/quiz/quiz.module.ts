@@ -17,6 +17,7 @@ import { QuizDifficultRepository } from './infra/difficult/quiz-difficult.reposi
 import { QuizEnterHistoryRepository } from './infra/history/quiz-enter-history.repository';
 import { QuizSubmitHistoryRepository } from './infra/history/quiz-submit-history.repository';
 import { AdModule } from 'src/ad/ad.module';
+import { TechModule } from 'src/tech/tech.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { AdModule } from 'src/ad/ad.module';
       QuizSubmitHistoryEntity,
     ]),
     AdModule,
+    TechModule,
   ],
   controllers: [QuizController],
   providers: [
