@@ -477,6 +477,7 @@ export class QuizService {
       take: limit || 20,
       where: condition,
       relations: { quiz: true },
+      order: { createdAt: 'DESC' },
     };
 
     const histories = await this.submitHistoryRepo.findMany(option);

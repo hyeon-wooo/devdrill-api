@@ -66,6 +66,41 @@ export class QuizController {
     return sendSuccessRes(result); // {quiz, isBookmarked, isDifficult, needShowAd}
   }
 
+  // 풀이이력 목록
+  @Get('/history')
+  @UseGuards(JwtAuthGuard)
+  async getHistoryList(
+    @Query() query: HistoryListQueryDto,
+    @Req() { user }: Request,
+    @SessionId() sessionId: string,
+  ) {
+    const list = await this.service.getHistoryList(query, {
+      userId: user!.id,
+      sessionId,
+    });
+    return sendSuccessRes({ list });
+  }
+
+  // 풀이이력 상세
+  @Get('/history/:id')
+  @UseGuards(JwtAuthGuard)
+  async getHistoryDetail(
+    @Param('id') idStr: string,
+    @Req() { user }: Request,
+    @SessionId() sessionId: string,
+  ) {
+    const id = Number(idStr);
+    if (isNaN(id)) return sendFailRes('잘못된 요청입니다.');
+
+    const result = await this.service.getHistoryDetail(id, {
+      userId: user!.id,
+      sessionId,
+    });
+    if (!result) return sendFailRes('접근할 수 없는 이력입니다.');
+
+    return sendSuccessRes(result);
+  }
+
   // 상세 조회 (특정)
   @Get('/:id')
   @UseGuards(JwtAuthGuard)
@@ -104,41 +139,6 @@ export class QuizController {
     });
 
     return sendSuccessRes(result);
-  }
-
-  // 풀이이력 목록
-  @Get('/history')
-  @UseGuards(JwtAuthGuard)
-  async getHistoryList(
-    @Query() query: HistoryListQueryDto,
-    @Req() { user }: Request,
-    @SessionId() sessionId: string,
-  ) {
-    const list = await this.service.getHistoryList(query, {
-      userId: user!.id,
-      sessionId,
-    });
-    return sendSuccessRes({ list });
-  }
-
-  // 풀이이력 상세
-  @Get('/history/:id')
-  @UseGuards(JwtAuthGuard)
-  async getHistoryDetail(
-    @Param('id') idStr: string,
-    @Req() { user }: Request,
-    @SessionId() sessionId: string,
-  ) {
-    const id = Number(idStr);
-    if (isNaN(id)) return sendFailRes('잘못된 요청입니다.');
-
-    const result = await this.service.getHistoryDetail(id, {
-      userId: user!.id,
-      sessionId,
-    });
-    if (!result) return sendFailRes('접근할 수 없는 이력입니다.');
-
-    return sendSuccessRes({ history: result });
   }
 
   // 채점
