@@ -113,8 +113,14 @@ export class QuizService {
         total: totalCorrect.length,
       },
       correctRate: {
-        month: ((monthCorrect.length / monthHistories.length) * 100).toFixed(0),
-        total: ((totalCorrect.length / histories.length) * 100).toFixed(0),
+        month:
+          monthHistories.length === 0
+            ? '0'
+            : ((monthCorrect.length / monthHistories.length) * 100).toFixed(0),
+        total:
+          histories.length === 0
+            ? '0'
+            : ((totalCorrect.length / histories.length) * 100).toFixed(0),
       },
       cntSolvedQuiz: solvedIdSet.size,
       cntQuiz,
