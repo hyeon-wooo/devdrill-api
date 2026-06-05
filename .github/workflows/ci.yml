@@ -88,5 +88,5 @@ jobs:
         with:
           package-name: 'devdrill-api'
           package-type: 'container'
-          min-versions-to-keep: 2
+          min-versions-to-keep: 4 # Digest + Tag가 각각 별도의 버전으로 취급되므로, 최근 두번의 빌드를 남기기 위해 4로 지정.
           token: ${{ secrets.GITHUB_TOKEN }}
